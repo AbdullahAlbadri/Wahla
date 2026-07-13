@@ -11,13 +11,12 @@ Run: python3 -m uvicorn api:app --port 8000 --reload
 """
 import json
 
-import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from twin import config
-from twin.data_loader import load_live_transactions
+from twin.data_loader import load_live_loans, load_live_transactions
 from twin.engine import FinancialTwin
 from twin.features import build_account_features
 from twin.memory import build_timeline
@@ -118,24 +117,22 @@ class ConnectPayload(BaseModel):
     demo: dict = {}
 
 
-_LOAN_COLUMNS = ["loan_id", "account_id", "granted_date", "amount",
-                  "duration", "payments", "status"]
-
-
 @app.post("/api/connect")
 def connect_live_account(payload: ConnectPayload):
     """Live equivalent of build_twins.py: raw feed → cleaned → features → Twin.
 
     Nothing here reaches features.py/engine.py until it has passed through
-    load_live_transactions(), the same cleaning contract the Berka batch
-    pipeline uses in twin/data_loader.py.
+    load_live_transactions()/load_live_loans() — the same cleaning contract
+    the Berka batch pipeline uses in twin/data_loader.py. A malformed loan
+    or transaction gets dropped by cleaning, not rejected outright: a real
+    feed of thousands of records will always contain a few bad ones.
     """
     raw = [t.model_dump() for t in payload.transactions]
     tx = load_live_transactions(raw)
     if tx.empty:
         raise HTTPException(422, "no valid transactions survived cleaning")
 
-    loans = pd.DataFrame(payload.loans) if payload.loans else pd.DataFrame(columns=_LOAN_COLUMNS)
+    loans = load_live_loans(payload.loans)
 
     feats = build_account_features(tx, loans)
     if not feats:
