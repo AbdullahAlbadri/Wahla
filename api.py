@@ -2,6 +2,7 @@
 
 Endpoints (all JSON):
   GET  /api/accounts                     demo accounts for the connect screen
+  POST /api/connect                      live Open Banking feed → cleaned → Twin
   GET  /api/twin/{account_id}            full Twin state
   POST /api/simulate/{account_id}        Wahla decision → simulation result
   GET  /api/alternatives/{account_id}    smarter-alternative suggestions
@@ -10,12 +11,16 @@ Run: python3 -m uvicorn api:app --port 8000 --reload
 """
 import json
 
+import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from twin import config
+from twin.data_loader import load_live_transactions
 from twin.engine import FinancialTwin
+from twin.features import build_account_features
+from twin.memory import build_timeline
 from twin.simulation import SimulationEngine
 
 app = FastAPI(title="Financial Digital Twin API")
@@ -86,6 +91,60 @@ def accounts():
         twin = _TWINS.get(a["id"])
         out.append({**a, "health_score": twin.financial_health_score if twin else None})
     return out
+
+
+class LiveTransaction(BaseModel):
+    """One transaction as it would arrive from a live Open Banking connection.
+
+    Fields stay loose (amount/trans_date optional-ish) on purpose: a real
+    feed will contain the occasional malformed row, and rejecting the whole
+    batch on one bad transaction would defeat the point of a cleaning layer.
+    load_live_transactions() is where bad rows actually get dropped.
+    """
+    trans_id: str
+    account_id: int
+    trans_date: str | None = None
+    amount: float | None = None
+    trans_type: str
+    balance: float | None = None
+    operation: str | None = None
+    category: str | None = None
+
+
+class ConnectPayload(BaseModel):
+    account_id: int
+    transactions: list[LiveTransaction]
+    loans: list[dict] = []
+    demo: dict = {}
+
+
+_LOAN_COLUMNS = ["loan_id", "account_id", "granted_date", "amount",
+                  "duration", "payments", "status"]
+
+
+@app.post("/api/connect")
+def connect_live_account(payload: ConnectPayload):
+    """Live equivalent of build_twins.py: raw feed → cleaned → features → Twin.
+
+    Nothing here reaches features.py/engine.py until it has passed through
+    load_live_transactions(), the same cleaning contract the Berka batch
+    pipeline uses in twin/data_loader.py.
+    """
+    raw = [t.model_dump() for t in payload.transactions]
+    tx = load_live_transactions(raw)
+    if tx.empty:
+        raise HTTPException(422, "no valid transactions survived cleaning")
+
+    loans = pd.DataFrame(payload.loans) if payload.loans else pd.DataFrame(columns=_LOAN_COLUMNS)
+
+    feats = build_account_features(tx, loans)
+    if not feats:
+        raise HTTPException(422, "not enough cleaned data to build a twin")
+
+    twin = FinancialTwin.from_features(
+        payload.account_id, feats, payload.demo, memory=build_timeline(tx, loans))
+    _TWINS[payload.account_id] = twin
+    return twin.to_dict()
 
 
 @app.get("/api/twin/{account_id}")

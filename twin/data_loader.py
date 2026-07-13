@@ -16,27 +16,27 @@ def _read(table: str) -> pd.DataFrame:
     return df
 
 
-def load_transactions() -> pd.DataFrame:
-    """Load, clean and normalize the transactions table."""
-    df = _read("trans")
+def _finalize_transactions(df: pd.DataFrame) -> pd.DataFrame:
+    """Shared cleaning choke point for every ingestion path (batch TSV or live API).
 
-    # types
-    df["trans_date"] = pd.to_datetime(df["trans_date"], format="%Y-%m-%d", errors="coerce")
+    Strict typing, drops invalid rows, dedupes, derives signed/absolute amount
+    and month. Callers must normalize trans_type/operation/category into
+    open-banking labels *before* reaching here — see load_transactions() for
+    the Berka-code mapping and load_live_transactions() for a live feed.
+    check_architecture.py enforces that nothing downstream (features.py,
+    engine.py, ...) ever imports data_loader or touches a raw file directly,
+    so this is the only place cleaning can happen.
+    """
+    # format="mixed": a live feed mixes date-only and full-timestamp rows —
+    # pandas otherwise infers one format from the first row and silently
+    # NaTs (then drops) every row that doesn't match it
+    df["trans_date"] = pd.to_datetime(df["trans_date"], format="mixed", errors="coerce")
     for col in ("amount", "balance"):
         df[col] = pd.to_numeric(df[col], errors="coerce")
     df["account_id"] = df["account_id"].astype(int)
 
-    # cleaning
     df = df.dropna(subset=["trans_date", "amount"])
     df = df.drop_duplicates(subset=["trans_id"])
-    df["trans_type"] = df["trans_type"].str.strip()
-    df["operation"] = df["operation"].str.strip()
-    df["category"] = df["category"].str.strip()
-
-    # normalize codes → open-banking style labels
-    df["trans_type"] = df["trans_type"].map(config.TRANS_TYPE).fillna("unknown")
-    df["operation"] = df["operation"].map(config.OPERATION).fillna("other")
-    df["category"] = df["category"].map(config.CATEGORY).fillna("uncategorized")
 
     # this Berka variant stores amounts already signed (debits negative);
     # keep signed_amount as-is and expose magnitude separately
@@ -44,6 +44,49 @@ def load_transactions() -> pd.DataFrame:
     df["amount"] = df["amount"].abs()
     df["month"] = df["trans_date"].dt.to_period("M")
     return df
+
+
+def load_transactions() -> pd.DataFrame:
+    """Load, clean and normalize the transactions table from the Berka TSV export."""
+    df = _read("trans")
+    df["trans_type"] = df["trans_type"].str.strip().map(config.TRANS_TYPE).fillna("unknown")
+    df["operation"] = df["operation"].str.strip().map(config.OPERATION).fillna("other")
+    df["category"] = df["category"].str.strip().map(config.CATEGORY).fillna("uncategorized")
+    return _finalize_transactions(df)
+
+
+LIVE_REQUIRED_FIELDS = {"trans_id", "account_id", "trans_date", "amount", "trans_type"}
+
+
+def load_live_transactions(raw: list[dict]) -> pd.DataFrame:
+    """Clean + normalize a batch of transactions pulled live from an Open Banking API.
+
+    This is the connect-time equivalent of load_transactions(): a real bank
+    feed lands here first and is forced through the exact same typing/dedup/
+    derivation contract as the Berka batch pipeline — only the cleaned frame
+    is allowed to reach features.py. Expected shape per transaction:
+        {trans_id, account_id, trans_date (ISO 8601), amount,
+         trans_type ("credit"|"debit"|"cash_withdrawal"),
+         balance?, operation?, category?}
+    """
+    columns = ["trans_id", "account_id", "trans_date", "amount", "balance",
+               "trans_type", "operation", "category", "signed_amount", "month"]
+    if not raw:
+        return pd.DataFrame(columns=columns)
+
+    df = pd.DataFrame(raw)
+    missing = LIVE_REQUIRED_FIELDS - set(df.columns)
+    if missing:
+        raise ValueError(f"live transaction feed missing required fields: {sorted(missing)}")
+
+    for col in ("balance", "operation", "category"):
+        if col not in df.columns:
+            df[col] = None
+    df["operation"] = df["operation"].fillna("other").astype(str).str.strip()
+    df["category"] = df["category"].fillna("uncategorized").astype(str).str.strip()
+    df["trans_type"] = df["trans_type"].astype(str).str.strip().str.lower()
+
+    return _finalize_transactions(df)
 
 
 def load_accounts() -> pd.DataFrame:
