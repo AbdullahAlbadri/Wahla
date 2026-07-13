@@ -1,0 +1,137 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-navy: var(--navy);
+  --color-navy-soft: var(--navy-soft);
+  --color-coral: var(--coral);
+  --color-coral-soft: var(--coral-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-risk: var(--risk);
+  --color-risk-soft: var(--risk-soft);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --font-sans: "Alexandria", "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", system-ui, sans-serif;
+}
+
+:root {
+  --radius: 1rem;
+
+  /* Wahla brand */
+  --navy: #0B2D46;
+  --navy-soft: #E8ECF0;
+  --coral: #F47F6B;
+  --coral-soft: #FEEDE9;
+  --surface: #F6F8FA;
+  --ink: #16242E;
+  --ink-muted: #6E7B84;
+  --success: #2E9E6F;
+  --success-soft: #E5F4EC;
+  --warning: #E6A23C;
+  --warning-soft: #FBF1DE;
+  --risk: #D95757;
+  --risk-soft: #FBE6E6;
+
+  /* shadcn mapping */
+  --background: #F6F8FA;
+  --foreground: #16242E;
+  --card: #FFFFFF;
+  --card-foreground: #16242E;
+  --popover: #FFFFFF;
+  --popover-foreground: #16242E;
+  --primary: #F47F6B;
+  --primary-foreground: #FFFFFF;
+  --secondary: #0B2D46;
+  --secondary-foreground: #FFFFFF;
+  --muted: #F6F8FA;
+  --muted-foreground: #6E7B84;
+  --accent: #FEEDE9;
+  --accent-foreground: #0B2D46;
+  --destructive: #D95757;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5EAED;
+  --input: #E5EAED;
+  --ring: #F47F6B;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html, body {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    direction: rtl;
+  }
+}
+
+@utility card-soft {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 2px rgba(11, 45, 70, 0.04);
+}
+
+@utility btn-primary {
+  background-color: var(--color-coral);
+  color: #ffffff;
+  border-radius: 14px;
+  height: 52px;
+  font-weight: 600;
+  transition: transform 120ms ease, background-color 120ms ease;
+  &:hover { background-color: #ef6f58; }
+  &:active { transform: scale(0.98); }
+  &:disabled { opacity: 0.5; }
+}
+
+@utility btn-secondary {
+  background-color: #ffffff;
+  color: var(--color-navy);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  height: 52px;
+  font-weight: 600;
+  &:hover { background-color: var(--color-surface); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@utility animate-fade-up { animation: fade-up 320ms ease both; }

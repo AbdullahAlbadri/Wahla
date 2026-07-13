@@ -1,0 +1,2869 @@
+{
+ "21": {
+  "headline": "The Disciplined Saver \u2014 saves 56% of income, 8.5 months of runway",
+  "twin": {
+   "account_id": 21,
+   "monthly_income": 1421.5,
+   "monthly_expenses": 629.06,
+   "net_cashflow": 792.44,
+   "savings_rate": 0.5575,
+   "spending_volatility": 1.035,
+   "income_stability": 0.7806,
+   "cashflow_stability": 0.2352,
+   "debt_ratio": 0.0,
+   "monthly_loan_payment": 0.0,
+   "current_balance": 5323.06,
+   "emergency_fund_months": 8.46,
+   "detected_salary": 941.5,
+   "weekend_spending_ratio": 0.5141,
+   "cash_usage_ratio": 0.5393,
+   "overdraft_months": 0,
+   "months_of_history": 13,
+   "financial_health_score": 84.7,
+   "financial_personality": "financially_disciplined",
+   "personality_confidence": 0.519,
+   "personality_scores": {
+    "financially_disciplined": 0.75,
+    "balanced_saver": 0.6951,
+    "goal_oriented_planner": 0.5452,
+    "conservative_spender": 0.5,
+    "impulse_shopper": 0.6667,
+    "risk_tolerant": 0.3333,
+    "at_risk": 0.0
+   },
+   "risk_level": "low",
+   "memory": [
+    {
+     "date": "2017-12",
+     "type": "salary_detected",
+     "title": "Recurring income detected",
+     "amount": 941.5
+    }
+   ],
+   "recurring_payments": [
+    {
+     "amount": 628.0,
+     "category": "household",
+     "months_observed": 9,
+     "monthly": true
+    },
+    {
+     "amount": 1.0,
+     "category": "bank_fee",
+     "months_observed": 8,
+     "monthly": true
+    }
+   ],
+   "category_ratios": {
+    "bank_fee_ratio": 0.001,
+    "household_ratio": 0.4607,
+    "uncategorized_ratio": 0.5383
+   },
+   "demographics": {},
+   "goals": [],
+   "forecast": {
+    "horizon_months": 24,
+    "projected_balances": [
+     6115.5,
+     6907.94,
+     7700.38,
+     8492.82,
+     9285.26,
+     10077.7,
+     10870.14,
+     11662.58,
+     12455.02,
+     13247.46,
+     14039.9,
+     14832.34,
+     15624.78,
+     16417.22,
+     17209.66,
+     18002.1,
+     18794.54,
+     19586.98,
+     20379.42,
+     21171.86,
+     21964.3,
+     22756.74,
+     23549.18,
+     24341.62
+    ],
+    "balance_in_12m": 14832.34,
+    "balance_in_24m": 24341.62,
+    "months_to_zero": null
+   },
+   "last_updated": "2026-07-02T23:03:42"
+  },
+  "what_if_car": {
+   "simulation": "car_6000",
+   "verdict": "safe",
+   "transition": {
+    "from_state": {
+     "monthly_income": 1421.5,
+     "monthly_expenses": 629.06,
+     "net_cashflow": 792.44,
+     "savings_rate": 0.5575,
+     "debt_ratio": 0.0,
+     "current_balance": 5323.06,
+     "emergency_fund_months": 8.46,
+     "financial_health_score": 84.7,
+     "financial_personality": "financially_disciplined",
+     "personality_confidence": 0.519,
+     "risk_level": "low",
+     "monthly_loan_payment": 0.0
+    },
+    "events": [
+     {
+      "type": "one_off_expense",
+      "amount": 1200.0
+     },
+     {
+      "type": "new_loan",
+      "principal": 4800.0,
+      "duration_months": 60,
+      "annual_rate": 0.05,
+      "disbursed_to_account": 0,
+      "monthly_payment": 90.58
+     }
+    ],
+    "to_state": {
+     "monthly_income": 1421.5,
+     "monthly_expenses": 719.6419214912527,
+     "net_cashflow": 701.86,
+     "savings_rate": 0.4937,
+     "debt_ratio": 0.0637,
+     "current_balance": 4123.06,
+     "emergency_fund_months": 5.73,
+     "financial_health_score": 79.6,
+     "financial_personality": "financially_disciplined",
+     "personality_confidence": 0.526,
+     "risk_level": "medium",
+     "monthly_loan_payment": 90.58192149125276
+    }
+   },
+   "before": {
+    "monthly_income": 1421.5,
+    "monthly_expenses": 629.06,
+    "net_cashflow": 792.44,
+    "savings_rate": 0.5575,
+    "debt_ratio": 0.0,
+    "current_balance": 5323.06,
+    "emergency_fund_months": 8.46,
+    "financial_health_score": 84.7,
+    "financial_personality": "financially_disciplined",
+    "personality_confidence": 0.519,
+    "risk_level": "low",
+    "monthly_loan_payment": 0.0
+   },
+   "after": {
+    "monthly_income": 1421.5,
+    "monthly_expenses": 719.6419214912527,
+    "net_cashflow": 701.86,
+    "savings_rate": 0.4937,
+    "debt_ratio": 0.0637,
+    "current_balance": 4123.06,
+    "emergency_fund_months": 5.73,
+    "financial_health_score": 79.6,
+    "financial_personality": "financially_disciplined",
+    "personality_confidence": 0.526,
+    "risk_level": "medium",
+    "monthly_loan_payment": 90.58192149125276
+   },
+   "twin_diff": [
+    {
+     "attribute": "monthly_expenses",
+     "before": 629.06,
+     "after": 719.6419214912527,
+     "delta": 90.5819,
+     "reasons": []
+    },
+    {
+     "attribute": "current_balance",
+     "before": 5323.06,
+     "after": 4123.06,
+     "delta": -1200.0,
+     "reasons": []
+    },
+    {
+     "attribute": "monthly_loan_payment",
+     "before": 0.0,
+     "after": 90.58192149125276,
+     "delta": 90.5819,
+     "reasons": []
+    },
+    {
+     "attribute": "net_cashflow",
+     "before": 792.44,
+     "after": 701.86,
+     "delta": -90.58,
+     "reasons": [
+      "recurring spending increased"
+     ]
+    },
+    {
+     "attribute": "savings_rate",
+     "before": 0.5575,
+     "after": 0.4937,
+     "delta": -0.0638,
+     "reasons": [
+      "recurring spending increased"
+     ]
+    },
+    {
+     "attribute": "debt_ratio",
+     "before": 0.0,
+     "after": 0.0637,
+     "delta": 0.0637,
+     "reasons": [
+      "monthly obligations increased"
+     ]
+    },
+    {
+     "attribute": "emergency_fund_months",
+     "before": 8.46,
+     "after": 5.73,
+     "delta": -2.73,
+     "reasons": [
+      "cash reserve consumed",
+      "recurring spending increased"
+     ]
+    },
+    {
+     "attribute": "financial_health_score",
+     "before": 84.7,
+     "after": 79.6,
+     "delta": -5.1,
+     "reasons": [
+      "savings rate fell",
+      "debt ratio increased",
+      "liquidity buffer shrank"
+     ]
+    },
+    {
+     "attribute": "personality_confidence",
+     "before": 0.519,
+     "after": 0.526,
+     "delta": 0.007,
+     "reasons": []
+    },
+    {
+     "attribute": "risk_level",
+     "before": "low",
+     "after": "medium",
+     "delta": null,
+     "reasons": [
+      "overall health deteriorated",
+      "debt ratio increased",
+      "savings rate fell"
+     ]
+    }
+   ],
+   "changed_attributes": [
+    {
+     "attribute": "current_balance",
+     "before": 5323.06,
+     "after": 4123.06,
+     "delta": -1200.0
+    },
+    {
+     "attribute": "emergency_fund_months",
+     "before": 8.46,
+     "after": 6.55,
+     "delta": -1.91
+    },
+    {
+     "attribute": "monthly_expenses",
+     "before": 629.06,
+     "after": 719.6419214912527,
+     "delta": 90.5819
+    },
+    {
+     "attribute": "net_cashflow",
+     "before": 792.44,
+     "after": 701.86,
+     "delta": -90.58
+    },
+    {
+     "attribute": "savings_rate",
+     "before": 0.5575,
+     "after": 0.4937,
+     "delta": -0.0638
+    },
+    {
+     "attribute": "debt_ratio",
+     "before": 0.0,
+     "after": 0.0637,
+     "delta": 0.0637
+    },
+    {
+     "attribute": "emergency_fund_months",
+     "before": 6.55,
+     "after": 5.73,
+     "delta": -0.82
+    },
+    {
+     "attribute": "financial_health_score",
+     "before": 84.7,
+     "after": 79.6,
+     "delta": -5.1
+    },
+    {
+     "attribute": "personality_confidence",
+     "before": 0.519,
+     "after": 0.526,
+     "delta": 0.007
+    },
+    {
+     "attribute": "risk_level",
+     "before": "low",
+     "after": "medium",
+     "delta": null
+    },
+    {
+     "attribute": "monthly_loan_payment",
+     "before": 0.0,
+     "after": 90.58192149125276,
+     "delta": 90.5819
+    }
+   ],
+   "forecast_after": {
+    "horizon_months": 24,
+    "projected_balances": [
+     4824.92,
+     5526.78,
+     6228.64,
+     6930.5,
+     7632.36,
+     8334.22,
+     9036.08,
+     9737.94,
+     10439.8,
+     11141.66,
+     11843.52,
+     12545.38,
+     13247.24,
+     13949.1,
+     14650.96,
+     15352.82,
+     16054.68,
+     16756.54,
+     17458.4,
+     18160.26,
+     18862.12,
+     19563.98,
+     20265.84,
+     20967.7
+    ],
+    "balance_in_12m": 12545.38,
+    "balance_in_24m": 20967.7,
+    "months_to_zero": null
+   },
+   "events_applied": [
+    {
+     "type": "one_off_expense",
+     "amount": 1200.0
+    },
+    {
+     "type": "new_loan",
+     "principal": 4800.0,
+     "duration_months": 60,
+     "annual_rate": 0.05,
+     "disbursed_to_account": 0,
+     "monthly_payment": 90.58
+    }
+   ],
+   "validation": [],
+   "health_report": {
+    "financial_health": {
+     "score": 79.6,
+     "grade": "excellent"
+    },
+    "cash_flow": {
+     "monthly_income": 1421.5,
+     "monthly_expenses": 719.6419214912527,
+     "net": 701.86,
+     "direction": "positive"
+    },
+    "risk": {
+     "level": "medium",
+     "months_to_zero_balance": null,
+     "overdraft_months_in_history": 0
+    },
+    "liquidity": {
+     "current_balance": 4123.06,
+     "emergency_fund_months": 5.73,
+     "target_months": 6,
+     "status": "underfunded"
+    },
+    "debt": {
+     "monthly_obligations": 90.58192149125276,
+     "debt_to_income": 0.0637,
+     "status": "healthy"
+    },
+    "savings": {
+     "rate": 0.4937,
+     "benchmark": 0.2,
+     "status": "on_track"
+    },
+    "financial_personality": {
+     "type": "financially_disciplined",
+     "confidence": 0.526
+    },
+    "financial_stability": {
+     "income_stability": 0.7806,
+     "cashflow_stability": 0.2352,
+     "spending_volatility": 1.035
+    },
+    "goal_progress": {
+     "goals": [],
+     "status": "no_goals_set"
+    },
+    "confidence": {
+     "months_of_history": 13,
+     "data_confidence": 0.54,
+     "personality_confidence": 0.526
+    },
+    "validation": [],
+    "summary": "Financial health is excellent (79.6/100); cash flow is positive at 702/month; emergency fund covers 5.7 of the recommended 6 months; debt takes 6% of income; savings rate is 49%."
+   },
+   "explanation": "The Health Score decreased from 84.7 to 79.6 because a one-time payment of 1,200 left the account; the loan adds 91/month in obligations for 60 months \u2014 as a result, your debt-to-income ratio rose from 0.0% to 6.4%, your savings rate fell from 55.8% to 49.4%, your emergency fund fell from 8.5 months to 5.7 months, your account balance fell from 5,323 to 4,123, your net cash flow fell from 792 to 702. Risk level moved from low to medium.",
+   "before_after_card": {
+    "financial_health_score": {
+     "before": "84.7",
+     "after": "79.6",
+     "changed": true
+    },
+    "savings_rate": {
+     "before": "55.8%",
+     "after": "49.4%",
+     "changed": true
+    },
+    "emergency_fund_months": {
+     "before": "8.5 months",
+     "after": "5.7 months",
+     "changed": true
+    },
+    "debt_ratio": {
+     "before": "0.0%",
+     "after": "6.4%",
+     "changed": true
+    },
+    "risk_level": {
+     "before": "low",
+     "after": "medium",
+     "changed": true
+    },
+    "financial_personality": {
+     "before": "financially_disciplined",
+     "after": "financially_disciplined",
+     "changed": false
+    }
+   }
+  },
+  "what_if_compare": [
+   {
+    "simulation": "invest_350_monthly",
+    "verdict": "safe",
+    "transition": {
+     "from_state": {
+      "monthly_income": 1421.5,
+      "monthly_expenses": 629.06,
+      "net_cashflow": 792.44,
+      "savings_rate": 0.5575,
+      "debt_ratio": 0.0,
+      "current_balance": 5323.06,
+      "emergency_fund_months": 8.46,
+      "financial_health_score": 84.7,
+      "financial_personality": "financially_disciplined",
+      "personality_confidence": 0.519,
+      "risk_level": "low",
+      "monthly_loan_payment": 0.0
+     },
+     "events": [
+      {
+       "type": "investment",
+       "monthly_amount": 350
+      }
+     ],
+     "to_state": {
+      "monthly_income": 1421.5,
+      "monthly_expenses": 979.06,
+      "net_cashflow": 442.44,
+      "savings_rate": 0.3112,
+      "debt_ratio": 0.0,
+      "current_balance": 5323.06,
+      "emergency_fund_months": 5.44,
+      "financial_health_score": 82.4,
+      "financial_personality": "financially_disciplined",
+      "personality_confidence": 0.511,
+      "risk_level": "medium",
+      "monthly_loan_payment": 0.0
+     }
+    },
+    "before": {
+     "monthly_income": 1421.5,
+     "monthly_expenses": 629.06,
+     "net_cashflow": 792.44,
+     "savings_rate": 0.5575,
+     "debt_ratio": 0.0,
+     "current_balance": 5323.06,
+     "emergency_fund_months": 8.46,
+     "financial_health_score": 84.7,
+     "financial_personality": "financially_disciplined",
+     "personality_confidence": 0.519,
+     "risk_level": "low",
+     "monthly_loan_payment": 0.0
+    },
+    "after": {
+     "monthly_income": 1421.5,
+     "monthly_expenses": 979.06,
+     "net_cashflow": 442.44,
+     "savings_rate": 0.3112,
+     "debt_ratio": 0.0,
+     "current_balance": 5323.06,
+     "emergency_fund_months": 5.44,
+     "financial_health_score": 82.4,
+     "financial_personality": "financially_disciplined",
+     "personality_confidence": 0.511,
+     "risk_level": "medium",
+     "monthly_loan_payment": 0.0
+    },
+    "twin_diff": [
+     {
+      "attribute": "monthly_expenses",
+      "before": 629.06,
+      "after": 979.06,
+      "delta": 350.0,
+      "reasons": []
+     },
+     {
+      "attribute": "net_cashflow",
+      "before": 792.44,
+      "after": 442.44,
+      "delta": -350.0,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "savings_rate",
+      "before": 0.5575,
+      "after": 0.3112,
+      "delta": -0.2463,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "emergency_fund_months",
+      "before": 8.46,
+      "after": 5.44,
+      "delta": -3.02,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "financial_health_score",
+      "before": 84.7,
+      "after": 82.4,
+      "delta": -2.3,
+      "reasons": [
+       "savings rate fell",
+       "liquidity buffer shrank"
+      ]
+     },
+     {
+      "attribute": "personality_confidence",
+      "before": 0.519,
+      "after": 0.511,
+      "delta": -0.008,
+      "reasons": []
+     },
+     {
+      "attribute": "risk_level",
+      "before": "low",
+      "after": "medium",
+      "delta": null,
+      "reasons": [
+       "overall health deteriorated",
+       "savings rate fell"
+      ]
+     }
+    ],
+    "changed_attributes": [
+     {
+      "attribute": "monthly_expenses",
+      "before": 629.06,
+      "after": 979.06,
+      "delta": 350.0
+     },
+     {
+      "attribute": "net_cashflow",
+      "before": 792.44,
+      "after": 442.44,
+      "delta": -350.0
+     },
+     {
+      "attribute": "savings_rate",
+      "before": 0.5575,
+      "after": 0.3112,
+      "delta": -0.2463
+     },
+     {
+      "attribute": "emergency_fund_months",
+      "before": 8.46,
+      "after": 5.44,
+      "delta": -3.02
+     },
+     {
+      "attribute": "financial_health_score",
+      "before": 84.7,
+      "after": 82.4,
+      "delta": -2.3
+     },
+     {
+      "attribute": "personality_confidence",
+      "before": 0.519,
+      "after": 0.511,
+      "delta": -0.008
+     },
+     {
+      "attribute": "risk_level",
+      "before": "low",
+      "after": "medium",
+      "delta": null
+     }
+    ],
+    "forecast_after": {
+     "horizon_months": 24,
+     "projected_balances": [
+      5765.5,
+      6207.94,
+      6650.38,
+      7092.82,
+      7535.26,
+      7977.7,
+      8420.14,
+      8862.58,
+      9305.02,
+      9747.46,
+      10189.9,
+      10632.34,
+      11074.78,
+      11517.22,
+      11959.66,
+      12402.1,
+      12844.54,
+      13286.98,
+      13729.42,
+      14171.86,
+      14614.3,
+      15056.74,
+      15499.18,
+      15941.62
+     ],
+     "balance_in_12m": 10632.34,
+     "balance_in_24m": 15941.62,
+     "months_to_zero": null
+    },
+    "events_applied": [
+     {
+      "type": "investment",
+      "monthly_amount": 350
+     }
+    ],
+    "validation": [],
+    "health_report": {
+     "financial_health": {
+      "score": 82.4,
+      "grade": "excellent"
+     },
+     "cash_flow": {
+      "monthly_income": 1421.5,
+      "monthly_expenses": 979.06,
+      "net": 442.44,
+      "direction": "positive"
+     },
+     "risk": {
+      "level": "medium",
+      "months_to_zero_balance": null,
+      "overdraft_months_in_history": 0
+     },
+     "liquidity": {
+      "current_balance": 5323.06,
+      "emergency_fund_months": 5.44,
+      "target_months": 6,
+      "status": "underfunded"
+     },
+     "debt": {
+      "monthly_obligations": 0.0,
+      "debt_to_income": 0.0,
+      "status": "healthy"
+     },
+     "savings": {
+      "rate": 0.3112,
+      "benchmark": 0.2,
+      "status": "on_track"
+     },
+     "financial_personality": {
+      "type": "financially_disciplined",
+      "confidence": 0.511
+     },
+     "financial_stability": {
+      "income_stability": 0.7806,
+      "cashflow_stability": 0.2352,
+      "spending_volatility": 1.035
+     },
+     "goal_progress": {
+      "goals": [],
+      "status": "no_goals_set"
+     },
+     "confidence": {
+      "months_of_history": 13,
+      "data_confidence": 0.54,
+      "personality_confidence": 0.511
+     },
+     "validation": [],
+     "summary": "Financial health is excellent (82.4/100); cash flow is positive at 442/month; emergency fund covers 5.4 of the recommended 6 months; debt takes 0% of income; savings rate is 31%."
+    },
+    "explanation": "The Health Score decreased from 84.7 to 82.4 because 350/month now flows into investments instead of the account \u2014 as a result, your savings rate fell from 55.8% to 31.1%, your emergency fund fell from 8.5 months to 5.4 months, your net cash flow fell from 792 to 442. Risk level moved from low to medium.",
+    "before_after_card": {
+     "financial_health_score": {
+      "before": "84.7",
+      "after": "82.4",
+      "changed": true
+     },
+     "savings_rate": {
+      "before": "55.8%",
+      "after": "31.1%",
+      "changed": true
+     },
+     "emergency_fund_months": {
+      "before": "8.5 months",
+      "after": "5.4 months",
+      "changed": true
+     },
+     "debt_ratio": {
+      "before": "0.0%",
+      "after": "0.0%",
+      "changed": false
+     },
+     "risk_level": {
+      "before": "low",
+      "after": "medium",
+      "changed": true
+     },
+     "financial_personality": {
+      "before": "financially_disciplined",
+      "after": "financially_disciplined",
+      "changed": false
+     }
+    },
+    "investment_projection": {
+     "horizon_months": 120,
+     "total_contributed": 42000,
+     "projected_value": 60579.68,
+     "projected_gain": 18579.68
+    }
+   },
+   {
+    "simulation": "car_6000",
+    "verdict": "safe",
+    "transition": {
+     "from_state": {
+      "monthly_income": 1421.5,
+      "monthly_expenses": 629.06,
+      "net_cashflow": 792.44,
+      "savings_rate": 0.5575,
+      "debt_ratio": 0.0,
+      "current_balance": 5323.06,
+      "emergency_fund_months": 8.46,
+      "financial_health_score": 84.7,
+      "financial_personality": "financially_disciplined",
+      "personality_confidence": 0.519,
+      "risk_level": "low",
+      "monthly_loan_payment": 0.0
+     },
+     "events": [
+      {
+       "type": "one_off_expense",
+       "amount": 1200.0
+      },
+      {
+       "type": "new_loan",
+       "principal": 4800.0,
+       "duration_months": 60,
+       "annual_rate": 0.05,
+       "disbursed_to_account": 0,
+       "monthly_payment": 90.58
+      }
+     ],
+     "to_state": {
+      "monthly_income": 1421.5,
+      "monthly_expenses": 719.6419214912527,
+      "net_cashflow": 701.86,
+      "savings_rate": 0.4937,
+      "debt_ratio": 0.0637,
+      "current_balance": 4123.06,
+      "emergency_fund_months": 5.73,
+      "financial_health_score": 79.6,
+      "financial_personality": "financially_disciplined",
+      "personality_confidence": 0.526,
+      "risk_level": "medium",
+      "monthly_loan_payment": 90.58192149125276
+     }
+    },
+    "before": {
+     "monthly_income": 1421.5,
+     "monthly_expenses": 629.06,
+     "net_cashflow": 792.44,
+     "savings_rate": 0.5575,
+     "debt_ratio": 0.0,
+     "current_balance": 5323.06,
+     "emergency_fund_months": 8.46,
+     "financial_health_score": 84.7,
+     "financial_personality": "financially_disciplined",
+     "personality_confidence": 0.519,
+     "risk_level": "low",
+     "monthly_loan_payment": 0.0
+    },
+    "after": {
+     "monthly_income": 1421.5,
+     "monthly_expenses": 719.6419214912527,
+     "net_cashflow": 701.86,
+     "savings_rate": 0.4937,
+     "debt_ratio": 0.0637,
+     "current_balance": 4123.06,
+     "emergency_fund_months": 5.73,
+     "financial_health_score": 79.6,
+     "financial_personality": "financially_disciplined",
+     "personality_confidence": 0.526,
+     "risk_level": "medium",
+     "monthly_loan_payment": 90.58192149125276
+    },
+    "twin_diff": [
+     {
+      "attribute": "monthly_expenses",
+      "before": 629.06,
+      "after": 719.6419214912527,
+      "delta": 90.5819,
+      "reasons": []
+     },
+     {
+      "attribute": "current_balance",
+      "before": 5323.06,
+      "after": 4123.06,
+      "delta": -1200.0,
+      "reasons": []
+     },
+     {
+      "attribute": "monthly_loan_payment",
+      "before": 0.0,
+      "after": 90.58192149125276,
+      "delta": 90.5819,
+      "reasons": []
+     },
+     {
+      "attribute": "net_cashflow",
+      "before": 792.44,
+      "after": 701.86,
+      "delta": -90.58,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "savings_rate",
+      "before": 0.5575,
+      "after": 0.4937,
+      "delta": -0.0638,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "debt_ratio",
+      "before": 0.0,
+      "after": 0.0637,
+      "delta": 0.0637,
+      "reasons": [
+       "monthly obligations increased"
+      ]
+     },
+     {
+      "attribute": "emergency_fund_months",
+      "before": 8.46,
+      "after": 5.73,
+      "delta": -2.73,
+      "reasons": [
+       "cash reserve consumed",
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "financial_health_score",
+      "before": 84.7,
+      "after": 79.6,
+      "delta": -5.1,
+      "reasons": [
+       "savings rate fell",
+       "debt ratio increased",
+       "liquidity buffer shrank"
+      ]
+     },
+     {
+      "attribute": "personality_confidence",
+      "before": 0.519,
+      "after": 0.526,
+      "delta": 0.007,
+      "reasons": []
+     },
+     {
+      "attribute": "risk_level",
+      "before": "low",
+      "after": "medium",
+      "delta": null,
+      "reasons": [
+       "overall health deteriorated",
+       "debt ratio increased",
+       "savings rate fell"
+      ]
+     }
+    ],
+    "changed_attributes": [
+     {
+      "attribute": "current_balance",
+      "before": 5323.06,
+      "after": 4123.06,
+      "delta": -1200.0
+     },
+     {
+      "attribute": "emergency_fund_months",
+      "before": 8.46,
+      "after": 6.55,
+      "delta": -1.91
+     },
+     {
+      "attribute": "monthly_expenses",
+      "before": 629.06,
+      "after": 719.6419214912527,
+      "delta": 90.5819
+     },
+     {
+      "attribute": "net_cashflow",
+      "before": 792.44,
+      "after": 701.86,
+      "delta": -90.58
+     },
+     {
+      "attribute": "savings_rate",
+      "before": 0.5575,
+      "after": 0.4937,
+      "delta": -0.0638
+     },
+     {
+      "attribute": "debt_ratio",
+      "before": 0.0,
+      "after": 0.0637,
+      "delta": 0.0637
+     },
+     {
+      "attribute": "emergency_fund_months",
+      "before": 6.55,
+      "after": 5.73,
+      "delta": -0.82
+     },
+     {
+      "attribute": "financial_health_score",
+      "before": 84.7,
+      "after": 79.6,
+      "delta": -5.1
+     },
+     {
+      "attribute": "personality_confidence",
+      "before": 0.519,
+      "after": 0.526,
+      "delta": 0.007
+     },
+     {
+      "attribute": "risk_level",
+      "before": "low",
+      "after": "medium",
+      "delta": null
+     },
+     {
+      "attribute": "monthly_loan_payment",
+      "before": 0.0,
+      "after": 90.58192149125276,
+      "delta": 90.5819
+     }
+    ],
+    "forecast_after": {
+     "horizon_months": 24,
+     "projected_balances": [
+      4824.92,
+      5526.78,
+      6228.64,
+      6930.5,
+      7632.36,
+      8334.22,
+      9036.08,
+      9737.94,
+      10439.8,
+      11141.66,
+      11843.52,
+      12545.38,
+      13247.24,
+      13949.1,
+      14650.96,
+      15352.82,
+      16054.68,
+      16756.54,
+      17458.4,
+      18160.26,
+      18862.12,
+      19563.98,
+      20265.84,
+      20967.7
+     ],
+     "balance_in_12m": 12545.38,
+     "balance_in_24m": 20967.7,
+     "months_to_zero": null
+    },
+    "events_applied": [
+     {
+      "type": "one_off_expense",
+      "amount": 1200.0
+     },
+     {
+      "type": "new_loan",
+      "principal": 4800.0,
+      "duration_months": 60,
+      "annual_rate": 0.05,
+      "disbursed_to_account": 0,
+      "monthly_payment": 90.58
+     }
+    ],
+    "validation": [],
+    "health_report": {
+     "financial_health": {
+      "score": 79.6,
+      "grade": "excellent"
+     },
+     "cash_flow": {
+      "monthly_income": 1421.5,
+      "monthly_expenses": 719.6419214912527,
+      "net": 701.86,
+      "direction": "positive"
+     },
+     "risk": {
+      "level": "medium",
+      "months_to_zero_balance": null,
+      "overdraft_months_in_history": 0
+     },
+     "liquidity": {
+      "current_balance": 4123.06,
+      "emergency_fund_months": 5.73,
+      "target_months": 6,
+      "status": "underfunded"
+     },
+     "debt": {
+      "monthly_obligations": 90.58192149125276,
+      "debt_to_income": 0.0637,
+      "status": "healthy"
+     },
+     "savings": {
+      "rate": 0.4937,
+      "benchmark": 0.2,
+      "status": "on_track"
+     },
+     "financial_personality": {
+      "type": "financially_disciplined",
+      "confidence": 0.526
+     },
+     "financial_stability": {
+      "income_stability": 0.7806,
+      "cashflow_stability": 0.2352,
+      "spending_volatility": 1.035
+     },
+     "goal_progress": {
+      "goals": [],
+      "status": "no_goals_set"
+     },
+     "confidence": {
+      "months_of_history": 13,
+      "data_confidence": 0.54,
+      "personality_confidence": 0.526
+     },
+     "validation": [],
+     "summary": "Financial health is excellent (79.6/100); cash flow is positive at 702/month; emergency fund covers 5.7 of the recommended 6 months; debt takes 6% of income; savings rate is 49%."
+    },
+    "explanation": "The Health Score decreased from 84.7 to 79.6 because a one-time payment of 1,200 left the account; the loan adds 91/month in obligations for 60 months \u2014 as a result, your debt-to-income ratio rose from 0.0% to 6.4%, your savings rate fell from 55.8% to 49.4%, your emergency fund fell from 8.5 months to 5.7 months, your account balance fell from 5,323 to 4,123, your net cash flow fell from 792 to 702. Risk level moved from low to medium.",
+    "before_after_card": {
+     "financial_health_score": {
+      "before": "84.7",
+      "after": "79.6",
+      "changed": true
+     },
+     "savings_rate": {
+      "before": "55.8%",
+      "after": "49.4%",
+      "changed": true
+     },
+     "emergency_fund_months": {
+      "before": "8.5 months",
+      "after": "5.7 months",
+      "changed": true
+     },
+     "debt_ratio": {
+      "before": "0.0%",
+      "after": "6.4%",
+      "changed": true
+     },
+     "risk_level": {
+      "before": "low",
+      "after": "medium",
+      "changed": true
+     },
+     "financial_personality": {
+      "before": "financially_disciplined",
+      "after": "financially_disciplined",
+      "changed": false
+     }
+    }
+   },
+   {
+    "simulation": "bnpl_6000_over_12m",
+    "verdict": "safe",
+    "transition": {
+     "from_state": {
+      "monthly_income": 1421.5,
+      "monthly_expenses": 629.06,
+      "net_cashflow": 792.44,
+      "savings_rate": 0.5575,
+      "debt_ratio": 0.0,
+      "current_balance": 5323.06,
+      "emergency_fund_months": 8.46,
+      "financial_health_score": 84.7,
+      "financial_personality": "financially_disciplined",
+      "personality_confidence": 0.519,
+      "risk_level": "low",
+      "monthly_loan_payment": 0.0
+     },
+     "events": [
+      {
+       "type": "new_subscription",
+       "monthly_amount": 500.0,
+       "name": "bnpl_12x"
+      }
+     ],
+     "to_state": {
+      "monthly_income": 1421.5,
+      "monthly_expenses": 1129.06,
+      "net_cashflow": 292.44,
+      "savings_rate": 0.2057,
+      "debt_ratio": 0.0,
+      "current_balance": 5323.06,
+      "emergency_fund_months": 4.71,
+      "financial_health_score": 69.9,
+      "financial_personality": "balanced_saver",
+      "personality_confidence": 0.51,
+      "risk_level": "medium",
+      "monthly_loan_payment": 0.0
+     }
+    },
+    "before": {
+     "monthly_income": 1421.5,
+     "monthly_expenses": 629.06,
+     "net_cashflow": 792.44,
+     "savings_rate": 0.5575,
+     "debt_ratio": 0.0,
+     "current_balance": 5323.06,
+     "emergency_fund_months": 8.46,
+     "financial_health_score": 84.7,
+     "financial_personality": "financially_disciplined",
+     "personality_confidence": 0.519,
+     "risk_level": "low",
+     "monthly_loan_payment": 0.0
+    },
+    "after": {
+     "monthly_income": 1421.5,
+     "monthly_expenses": 1129.06,
+     "net_cashflow": 292.44,
+     "savings_rate": 0.2057,
+     "debt_ratio": 0.0,
+     "current_balance": 5323.06,
+     "emergency_fund_months": 4.71,
+     "financial_health_score": 69.9,
+     "financial_personality": "balanced_saver",
+     "personality_confidence": 0.51,
+     "risk_level": "medium",
+     "monthly_loan_payment": 0.0
+    },
+    "twin_diff": [
+     {
+      "attribute": "monthly_expenses",
+      "before": 629.06,
+      "after": 1129.06,
+      "delta": 500.0,
+      "reasons": []
+     },
+     {
+      "attribute": "net_cashflow",
+      "before": 792.44,
+      "after": 292.44,
+      "delta": -500.0,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "savings_rate",
+      "before": 0.5575,
+      "after": 0.2057,
+      "delta": -0.3518,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "emergency_fund_months",
+      "before": 8.46,
+      "after": 4.71,
+      "delta": -3.75,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "financial_health_score",
+      "before": 84.7,
+      "after": 69.9,
+      "delta": -14.8,
+      "reasons": [
+       "savings rate fell",
+       "liquidity buffer shrank"
+      ]
+     },
+     {
+      "attribute": "financial_personality",
+      "before": "financially_disciplined",
+      "after": "balanced_saver",
+      "delta": null,
+      "reasons": [
+       "savings rate fell",
+       "liquidity buffer shrank"
+      ]
+     },
+     {
+      "attribute": "personality_confidence",
+      "before": 0.519,
+      "after": 0.51,
+      "delta": -0.009,
+      "reasons": [
+       "financial personality changed"
+      ]
+     },
+     {
+      "attribute": "risk_level",
+      "before": "low",
+      "after": "medium",
+      "delta": null,
+      "reasons": [
+       "overall health deteriorated",
+       "savings rate fell"
+      ]
+     }
+    ],
+    "changed_attributes": [
+     {
+      "attribute": "monthly_expenses",
+      "before": 629.06,
+      "after": 1129.06,
+      "delta": 500.0
+     },
+     {
+      "attribute": "net_cashflow",
+      "before": 792.44,
+      "after": 292.44,
+      "delta": -500.0
+     },
+     {
+      "attribute": "savings_rate",
+      "before": 0.5575,
+      "after": 0.2057,
+      "delta": -0.3518
+     },
+     {
+      "attribute": "emergency_fund_months",
+      "before": 8.46,
+      "after": 4.71,
+      "delta": -3.75
+     },
+     {
+      "attribute": "financial_health_score",
+      "before": 84.7,
+      "after": 69.9,
+      "delta": -14.8
+     },
+     {
+      "attribute": "financial_personality",
+      "before": "financially_disciplined",
+      "after": "balanced_saver",
+      "delta": null
+     },
+     {
+      "attribute": "personality_confidence",
+      "before": 0.519,
+      "after": 0.51,
+      "delta": -0.009
+     },
+     {
+      "attribute": "risk_level",
+      "before": "low",
+      "after": "medium",
+      "delta": null
+     }
+    ],
+    "forecast_after": {
+     "horizon_months": 24,
+     "projected_balances": [
+      5615.5,
+      5907.94,
+      6200.38,
+      6492.82,
+      6785.26,
+      7077.7,
+      7370.14,
+      7662.58,
+      7955.02,
+      8247.46,
+      8539.9,
+      8832.34,
+      9124.78,
+      9417.22,
+      9709.66,
+      10002.1,
+      10294.54,
+      10586.98,
+      10879.42,
+      11171.86,
+      11464.3,
+      11756.74,
+      12049.18,
+      12341.62
+     ],
+     "balance_in_12m": 8832.34,
+     "balance_in_24m": 12341.62,
+     "months_to_zero": null
+    },
+    "events_applied": [
+     {
+      "type": "new_subscription",
+      "monthly_amount": 500.0,
+      "name": "bnpl_12x"
+     }
+    ],
+    "validation": [],
+    "health_report": {
+     "financial_health": {
+      "score": 69.9,
+      "grade": "good"
+     },
+     "cash_flow": {
+      "monthly_income": 1421.5,
+      "monthly_expenses": 1129.06,
+      "net": 292.44,
+      "direction": "positive"
+     },
+     "risk": {
+      "level": "medium",
+      "months_to_zero_balance": null,
+      "overdraft_months_in_history": 0
+     },
+     "liquidity": {
+      "current_balance": 5323.06,
+      "emergency_fund_months": 4.71,
+      "target_months": 6,
+      "status": "underfunded"
+     },
+     "debt": {
+      "monthly_obligations": 0.0,
+      "debt_to_income": 0.0,
+      "status": "healthy"
+     },
+     "savings": {
+      "rate": 0.2057,
+      "benchmark": 0.2,
+      "status": "on_track"
+     },
+     "financial_personality": {
+      "type": "balanced_saver",
+      "confidence": 0.51
+     },
+     "financial_stability": {
+      "income_stability": 0.7806,
+      "cashflow_stability": 0.2352,
+      "spending_volatility": 1.035
+     },
+     "goal_progress": {
+      "goals": [],
+      "status": "no_goals_set"
+     },
+     "confidence": {
+      "months_of_history": 13,
+      "data_confidence": 0.54,
+      "personality_confidence": 0.51
+     },
+     "validation": [],
+     "summary": "Financial health is good (69.9/100); cash flow is positive at 292/month; emergency fund covers 4.7 of the recommended 6 months; debt takes 0% of income; savings rate is 21%."
+    },
+    "explanation": "The Health Score decreased from 84.7 to 69.9 because a new recurring commitment of 500/month was added \u2014 as a result, your savings rate fell from 55.8% to 20.6%, your emergency fund fell from 8.5 months to 4.7 months, your net cash flow fell from 792 to 292. Risk level moved from low to medium.",
+    "before_after_card": {
+     "financial_health_score": {
+      "before": "84.7",
+      "after": "69.9",
+      "changed": true
+     },
+     "savings_rate": {
+      "before": "55.8%",
+      "after": "20.6%",
+      "changed": true
+     },
+     "emergency_fund_months": {
+      "before": "8.5 months",
+      "after": "4.7 months",
+      "changed": true
+     },
+     "debt_ratio": {
+      "before": "0.0%",
+      "after": "0.0%",
+      "changed": false
+     },
+     "risk_level": {
+      "before": "low",
+      "after": "medium",
+      "changed": true
+     },
+     "financial_personality": {
+      "before": "financially_disciplined",
+      "after": "balanced_saver",
+      "changed": true
+     }
+    }
+   }
+  ]
+ },
+ "19": {
+  "headline": "The Impulse Spender \u2014 real loan ended in default, overdraft history",
+  "twin": {
+   "account_id": 19,
+   "monthly_income": 1568.23,
+   "monthly_expenses": 1701.46,
+   "net_cashflow": -133.23,
+   "savings_rate": -0.085,
+   "spending_volatility": 0.5521,
+   "income_stability": 0.8189,
+   "cashflow_stability": 0.0,
+   "debt_ratio": 0.0,
+   "monthly_loan_payment": 0.0,
+   "current_balance": 1087.3,
+   "emergency_fund_months": 0.64,
+   "detected_salary": 1513.9,
+   "weekend_spending_ratio": 0.4669,
+   "cash_usage_ratio": 0.9742,
+   "overdraft_months": 0,
+   "months_of_history": 45,
+   "financial_health_score": 27.7,
+   "financial_personality": "impulse_shopper",
+   "personality_confidence": 0.6,
+   "personality_scores": {
+    "financially_disciplined": 0.3886,
+    "balanced_saver": 0.4547,
+    "goal_oriented_planner": 0.5667,
+    "conservative_spender": 0.5166,
+    "impulse_shopper": 0.8507,
+    "risk_tolerant": 0.2622,
+    "at_risk": 0.3825
+   },
+   "risk_level": "high",
+   "memory": [
+    {
+     "date": "2015-04",
+     "type": "salary_detected",
+     "title": "Recurring income detected",
+     "amount": 1513.9
+    },
+    {
+     "date": "2016-04-29",
+     "type": "loan_granted",
+     "title": "Loan granted (12 months)",
+     "amount": 3027.6,
+     "monthly_payment": 252.3,
+     "outcome": "defaulted"
+    },
+    {
+     "date": "2017-04-03",
+     "type": "first_overdraft",
+     "title": "Account went into overdraft",
+     "amount": -1038.53
+    },
+    {
+     "date": null,
+     "type": "loan_finished",
+     "title": "Loan defaulted",
+     "amount": 3027.6,
+     "outcome": "defaulted"
+    }
+   ],
+   "recurring_payments": [
+    {
+     "amount": 1.0,
+     "category": "bank_fee",
+     "months_observed": 40,
+     "monthly": true
+    },
+    {
+     "amount": 270.0,
+     "category": "uncategorized",
+     "months_observed": 9,
+     "monthly": true
+    },
+    {
+     "amount": 252.0,
+     "category": "loan_payment",
+     "months_observed": 8,
+     "monthly": true
+    },
+    {
+     "amount": 250.0,
+     "category": "uncategorized",
+     "months_observed": 5,
+     "monthly": true
+    },
+    {
+     "amount": 210.0,
+     "category": "uncategorized",
+     "months_observed": 4,
+     "monthly": true
+    },
+    {
+     "amount": 230.0,
+     "category": "uncategorized",
+     "months_observed": 3,
+     "monthly": true
+    },
+    {
+     "amount": 290.0,
+     "category": "uncategorized",
+     "months_observed": 3,
+     "monthly": true
+    }
+   ],
+   "category_ratios": {
+    "bank_fee_ratio": 0.0007,
+    "household_ratio": 0.6148,
+    "loan_payment_ratio": 0.0258,
+    "overdraft_fee_ratio": 0.0001,
+    "uncategorized_ratio": 0.3585
+   },
+   "demographics": {},
+   "goals": [],
+   "forecast": {
+    "horizon_months": 24,
+    "projected_balances": [
+     954.07,
+     820.84,
+     687.61,
+     554.38,
+     421.15,
+     287.92,
+     154.69,
+     21.46,
+     -111.77,
+     -245.0,
+     -378.23,
+     -511.46,
+     -644.69,
+     -777.92,
+     -911.15,
+     -1044.38,
+     -1177.61,
+     -1310.84,
+     -1444.07,
+     -1577.3,
+     -1710.53,
+     -1843.76,
+     -1976.99,
+     -2110.22
+    ],
+    "balance_in_12m": -511.46,
+    "balance_in_24m": -2110.22,
+    "months_to_zero": 9
+   },
+   "last_updated": "2026-07-02T23:03:42"
+  },
+  "what_if_car": {
+   "simulation": "car_6000",
+   "verdict": "dangerous",
+   "transition": {
+    "from_state": {
+     "monthly_income": 1568.23,
+     "monthly_expenses": 1701.46,
+     "net_cashflow": -133.23,
+     "savings_rate": -0.085,
+     "debt_ratio": 0.0,
+     "current_balance": 1087.3,
+     "emergency_fund_months": 0.64,
+     "financial_health_score": 27.7,
+     "financial_personality": "impulse_shopper",
+     "personality_confidence": 0.6,
+     "risk_level": "high",
+     "monthly_loan_payment": 0.0
+    },
+    "events": [
+     {
+      "type": "one_off_expense",
+      "amount": 1200.0
+     },
+     {
+      "type": "new_loan",
+      "principal": 4800.0,
+      "duration_months": 60,
+      "annual_rate": 0.05,
+      "disbursed_to_account": 0,
+      "monthly_payment": 90.58
+     }
+    ],
+    "to_state": {
+     "monthly_income": 1568.23,
+     "monthly_expenses": 1792.0419214912529,
+     "net_cashflow": -223.81,
+     "savings_rate": -0.1427,
+     "debt_ratio": 0.0578,
+     "current_balance": -112.70000000000005,
+     "emergency_fund_months": -0.06,
+     "financial_health_score": 21.4,
+     "financial_personality": "impulse_shopper",
+     "personality_confidence": 0.6,
+     "risk_level": "high",
+     "monthly_loan_payment": 90.58192149125276
+    }
+   },
+   "before": {
+    "monthly_income": 1568.23,
+    "monthly_expenses": 1701.46,
+    "net_cashflow": -133.23,
+    "savings_rate": -0.085,
+    "debt_ratio": 0.0,
+    "current_balance": 1087.3,
+    "emergency_fund_months": 0.64,
+    "financial_health_score": 27.7,
+    "financial_personality": "impulse_shopper",
+    "personality_confidence": 0.6,
+    "risk_level": "high",
+    "monthly_loan_payment": 0.0
+   },
+   "after": {
+    "monthly_income": 1568.23,
+    "monthly_expenses": 1792.0419214912529,
+    "net_cashflow": -223.81,
+    "savings_rate": -0.1427,
+    "debt_ratio": 0.0578,
+    "current_balance": -112.70000000000005,
+    "emergency_fund_months": -0.06,
+    "financial_health_score": 21.4,
+    "financial_personality": "impulse_shopper",
+    "personality_confidence": 0.6,
+    "risk_level": "high",
+    "monthly_loan_payment": 90.58192149125276
+   },
+   "twin_diff": [
+    {
+     "attribute": "monthly_expenses",
+     "before": 1701.46,
+     "after": 1792.0419214912529,
+     "delta": 90.5819,
+     "reasons": []
+    },
+    {
+     "attribute": "current_balance",
+     "before": 1087.3,
+     "after": -112.70000000000005,
+     "delta": -1200.0,
+     "reasons": []
+    },
+    {
+     "attribute": "monthly_loan_payment",
+     "before": 0.0,
+     "after": 90.58192149125276,
+     "delta": 90.5819,
+     "reasons": []
+    },
+    {
+     "attribute": "net_cashflow",
+     "before": -133.23,
+     "after": -223.81,
+     "delta": -90.58,
+     "reasons": [
+      "recurring spending increased"
+     ]
+    },
+    {
+     "attribute": "savings_rate",
+     "before": -0.085,
+     "after": -0.1427,
+     "delta": -0.0577,
+     "reasons": [
+      "recurring spending increased"
+     ]
+    },
+    {
+     "attribute": "debt_ratio",
+     "before": 0.0,
+     "after": 0.0578,
+     "delta": 0.0578,
+     "reasons": [
+      "monthly obligations increased"
+     ]
+    },
+    {
+     "attribute": "emergency_fund_months",
+     "before": 0.64,
+     "after": -0.06,
+     "delta": -0.7,
+     "reasons": [
+      "cash reserve consumed",
+      "recurring spending increased"
+     ]
+    },
+    {
+     "attribute": "financial_health_score",
+     "before": 27.7,
+     "after": 21.4,
+     "delta": -6.3,
+     "reasons": [
+      "savings rate fell",
+      "debt ratio increased",
+      "liquidity buffer shrank"
+     ]
+    }
+   ],
+   "changed_attributes": [
+    {
+     "attribute": "current_balance",
+     "before": 1087.3,
+     "after": -112.70000000000005,
+     "delta": -1200.0
+    },
+    {
+     "attribute": "emergency_fund_months",
+     "before": 0.64,
+     "after": -0.07,
+     "delta": -0.71
+    },
+    {
+     "attribute": "financial_health_score",
+     "before": 27.7,
+     "after": 25.0,
+     "delta": -2.7
+    },
+    {
+     "attribute": "monthly_expenses",
+     "before": 1701.46,
+     "after": 1792.0419214912529,
+     "delta": 90.5819
+    },
+    {
+     "attribute": "net_cashflow",
+     "before": -133.23,
+     "after": -223.81,
+     "delta": -90.58
+    },
+    {
+     "attribute": "savings_rate",
+     "before": -0.085,
+     "after": -0.1427,
+     "delta": -0.0577
+    },
+    {
+     "attribute": "debt_ratio",
+     "before": 0.0,
+     "after": 0.0578,
+     "delta": 0.0578
+    },
+    {
+     "attribute": "emergency_fund_months",
+     "before": -0.07,
+     "after": -0.06,
+     "delta": 0.01
+    },
+    {
+     "attribute": "financial_health_score",
+     "before": 25.0,
+     "after": 21.4,
+     "delta": -3.6
+    },
+    {
+     "attribute": "monthly_loan_payment",
+     "before": 0.0,
+     "after": 90.58192149125276,
+     "delta": 90.5819
+    }
+   ],
+   "forecast_after": {
+    "horizon_months": 24,
+    "projected_balances": [
+     -336.51,
+     -560.32,
+     -784.13,
+     -1007.94,
+     -1231.75,
+     -1455.56,
+     -1679.37,
+     -1903.18,
+     -2126.99,
+     -2350.8,
+     -2574.61,
+     -2798.42,
+     -3022.23,
+     -3246.04,
+     -3469.85,
+     -3693.66,
+     -3917.47,
+     -4141.28,
+     -4365.09,
+     -4588.9,
+     -4812.71,
+     -5036.52,
+     -5260.33,
+     -5484.14
+    ],
+    "balance_in_12m": -2798.42,
+    "balance_in_24m": -5484.14,
+    "months_to_zero": 1
+   },
+   "events_applied": [
+    {
+     "type": "one_off_expense",
+     "amount": 1200.0
+    },
+    {
+     "type": "new_loan",
+     "principal": 4800.0,
+     "duration_months": 60,
+     "annual_rate": 0.05,
+     "disbursed_to_account": 0,
+     "monthly_payment": 90.58
+    }
+   ],
+   "validation": [
+    {
+     "check": "emergency_fund_negative",
+     "severity": "info",
+     "message": "emergency fund is negative (-0.1 months) because the account balance is overdrawn (-113)"
+    }
+   ],
+   "health_report": {
+    "financial_health": {
+     "score": 21.4,
+     "grade": "poor"
+    },
+    "cash_flow": {
+     "monthly_income": 1568.23,
+     "monthly_expenses": 1792.0419214912529,
+     "net": -223.81,
+     "direction": "negative"
+    },
+    "risk": {
+     "level": "high",
+     "months_to_zero_balance": 1,
+     "overdraft_months_in_history": 0
+    },
+    "liquidity": {
+     "current_balance": -112.70000000000005,
+     "emergency_fund_months": -0.06,
+     "target_months": 6,
+     "status": "underfunded"
+    },
+    "debt": {
+     "monthly_obligations": 90.58192149125276,
+     "debt_to_income": 0.0578,
+     "status": "healthy"
+    },
+    "savings": {
+     "rate": -0.1427,
+     "benchmark": 0.2,
+     "status": "behind"
+    },
+    "financial_personality": {
+     "type": "impulse_shopper",
+     "confidence": 0.6
+    },
+    "financial_stability": {
+     "income_stability": 0.8189,
+     "cashflow_stability": 0.0,
+     "spending_volatility": 0.5521
+    },
+    "goal_progress": {
+     "goals": [],
+     "status": "no_goals_set"
+    },
+    "confidence": {
+     "months_of_history": 45,
+     "data_confidence": 1.0,
+     "personality_confidence": 0.6
+    },
+    "validation": [
+     {
+      "check": "emergency_fund_negative",
+      "severity": "info",
+      "message": "emergency fund is negative (-0.1 months) because the account balance is overdrawn (-113)"
+     }
+    ],
+    "summary": "Financial health is poor (21.4/100); cash flow is negative at -224/month; emergency fund covers -0.1 of the recommended 6 months; debt takes 6% of income; savings rate is -14%."
+   },
+   "explanation": "The Health Score decreased from 27.7 to 21.4 because a one-time payment of 1,200 left the account; the loan adds 91/month in obligations for 60 months \u2014 as a result, your debt-to-income ratio rose from 0.0% to 5.8%, your savings rate fell from -8.5% to -14.3%, your emergency fund fell from 0.6 months to -0.1 months, your account balance fell from 1,087 to -113, your net cash flow fell from -133 to -224.",
+   "before_after_card": {
+    "financial_health_score": {
+     "before": "27.7",
+     "after": "21.4",
+     "changed": true
+    },
+    "savings_rate": {
+     "before": "-8.5%",
+     "after": "-14.3%",
+     "changed": true
+    },
+    "emergency_fund_months": {
+     "before": "0.6 months",
+     "after": "-0.1 months",
+     "changed": true
+    },
+    "debt_ratio": {
+     "before": "0.0%",
+     "after": "5.8%",
+     "changed": true
+    },
+    "risk_level": {
+     "before": "high",
+     "after": "high",
+     "changed": false
+    },
+    "financial_personality": {
+     "before": "impulse_shopper",
+     "after": "impulse_shopper",
+     "changed": false
+    }
+   }
+  },
+  "what_if_compare": [
+   {
+    "simulation": "invest_350_monthly",
+    "verdict": "dangerous",
+    "transition": {
+     "from_state": {
+      "monthly_income": 1568.23,
+      "monthly_expenses": 1701.46,
+      "net_cashflow": -133.23,
+      "savings_rate": -0.085,
+      "debt_ratio": 0.0,
+      "current_balance": 1087.3,
+      "emergency_fund_months": 0.64,
+      "financial_health_score": 27.7,
+      "financial_personality": "impulse_shopper",
+      "personality_confidence": 0.6,
+      "risk_level": "high",
+      "monthly_loan_payment": 0.0
+     },
+     "events": [
+      {
+       "type": "investment",
+       "monthly_amount": 350
+      }
+     ],
+     "to_state": {
+      "monthly_income": 1568.23,
+      "monthly_expenses": 2051.46,
+      "net_cashflow": -483.23,
+      "savings_rate": -0.3081,
+      "debt_ratio": 0.0,
+      "current_balance": 1087.3,
+      "emergency_fund_months": 0.53,
+      "financial_health_score": 27.2,
+      "financial_personality": "impulse_shopper",
+      "personality_confidence": 0.6,
+      "risk_level": "high",
+      "monthly_loan_payment": 0.0
+     }
+    },
+    "before": {
+     "monthly_income": 1568.23,
+     "monthly_expenses": 1701.46,
+     "net_cashflow": -133.23,
+     "savings_rate": -0.085,
+     "debt_ratio": 0.0,
+     "current_balance": 1087.3,
+     "emergency_fund_months": 0.64,
+     "financial_health_score": 27.7,
+     "financial_personality": "impulse_shopper",
+     "personality_confidence": 0.6,
+     "risk_level": "high",
+     "monthly_loan_payment": 0.0
+    },
+    "after": {
+     "monthly_income": 1568.23,
+     "monthly_expenses": 2051.46,
+     "net_cashflow": -483.23,
+     "savings_rate": -0.3081,
+     "debt_ratio": 0.0,
+     "current_balance": 1087.3,
+     "emergency_fund_months": 0.53,
+     "financial_health_score": 27.2,
+     "financial_personality": "impulse_shopper",
+     "personality_confidence": 0.6,
+     "risk_level": "high",
+     "monthly_loan_payment": 0.0
+    },
+    "twin_diff": [
+     {
+      "attribute": "monthly_expenses",
+      "before": 1701.46,
+      "after": 2051.46,
+      "delta": 350.0,
+      "reasons": []
+     },
+     {
+      "attribute": "net_cashflow",
+      "before": -133.23,
+      "after": -483.23,
+      "delta": -350.0,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "savings_rate",
+      "before": -0.085,
+      "after": -0.3081,
+      "delta": -0.2231,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "emergency_fund_months",
+      "before": 0.64,
+      "after": 0.53,
+      "delta": -0.11,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "financial_health_score",
+      "before": 27.7,
+      "after": 27.2,
+      "delta": -0.5,
+      "reasons": [
+       "savings rate fell",
+       "liquidity buffer shrank"
+      ]
+     }
+    ],
+    "changed_attributes": [
+     {
+      "attribute": "monthly_expenses",
+      "before": 1701.46,
+      "after": 2051.46,
+      "delta": 350.0
+     },
+     {
+      "attribute": "net_cashflow",
+      "before": -133.23,
+      "after": -483.23,
+      "delta": -350.0
+     },
+     {
+      "attribute": "savings_rate",
+      "before": -0.085,
+      "after": -0.3081,
+      "delta": -0.2231
+     },
+     {
+      "attribute": "emergency_fund_months",
+      "before": 0.64,
+      "after": 0.53,
+      "delta": -0.11
+     },
+     {
+      "attribute": "financial_health_score",
+      "before": 27.7,
+      "after": 27.2,
+      "delta": -0.5
+     }
+    ],
+    "forecast_after": {
+     "horizon_months": 24,
+     "projected_balances": [
+      604.07,
+      120.84,
+      -362.39,
+      -845.62,
+      -1328.85,
+      -1812.08,
+      -2295.31,
+      -2778.54,
+      -3261.77,
+      -3745.0,
+      -4228.23,
+      -4711.46,
+      -5194.69,
+      -5677.92,
+      -6161.15,
+      -6644.38,
+      -7127.61,
+      -7610.84,
+      -8094.07,
+      -8577.3,
+      -9060.53,
+      -9543.76,
+      -10026.99,
+      -10510.22
+     ],
+     "balance_in_12m": -4711.46,
+     "balance_in_24m": -10510.22,
+     "months_to_zero": 3
+    },
+    "events_applied": [
+     {
+      "type": "investment",
+      "monthly_amount": 350
+     }
+    ],
+    "validation": [],
+    "health_report": {
+     "financial_health": {
+      "score": 27.2,
+      "grade": "poor"
+     },
+     "cash_flow": {
+      "monthly_income": 1568.23,
+      "monthly_expenses": 2051.46,
+      "net": -483.23,
+      "direction": "negative"
+     },
+     "risk": {
+      "level": "high",
+      "months_to_zero_balance": 3,
+      "overdraft_months_in_history": 0
+     },
+     "liquidity": {
+      "current_balance": 1087.3,
+      "emergency_fund_months": 0.53,
+      "target_months": 6,
+      "status": "underfunded"
+     },
+     "debt": {
+      "monthly_obligations": 0.0,
+      "debt_to_income": 0.0,
+      "status": "healthy"
+     },
+     "savings": {
+      "rate": -0.3081,
+      "benchmark": 0.2,
+      "status": "behind"
+     },
+     "financial_personality": {
+      "type": "impulse_shopper",
+      "confidence": 0.6
+     },
+     "financial_stability": {
+      "income_stability": 0.8189,
+      "cashflow_stability": 0.0,
+      "spending_volatility": 0.5521
+     },
+     "goal_progress": {
+      "goals": [],
+      "status": "no_goals_set"
+     },
+     "confidence": {
+      "months_of_history": 45,
+      "data_confidence": 1.0,
+      "personality_confidence": 0.6
+     },
+     "validation": [],
+     "summary": "Financial health is poor (27.2/100); cash flow is negative at -483/month; emergency fund covers 0.5 of the recommended 6 months; debt takes 0% of income; savings rate is -31%."
+    },
+    "explanation": "The Health Score decreased from 27.7 to 27.2 because 350/month now flows into investments instead of the account \u2014 as a result, your savings rate fell from -8.5% to -30.8%, your emergency fund fell from 0.6 months to 0.5 months, your net cash flow fell from -133 to -483.",
+    "before_after_card": {
+     "financial_health_score": {
+      "before": "27.7",
+      "after": "27.2",
+      "changed": true
+     },
+     "savings_rate": {
+      "before": "-8.5%",
+      "after": "-30.8%",
+      "changed": true
+     },
+     "emergency_fund_months": {
+      "before": "0.6 months",
+      "after": "0.5 months",
+      "changed": true
+     },
+     "debt_ratio": {
+      "before": "0.0%",
+      "after": "0.0%",
+      "changed": false
+     },
+     "risk_level": {
+      "before": "high",
+      "after": "high",
+      "changed": false
+     },
+     "financial_personality": {
+      "before": "impulse_shopper",
+      "after": "impulse_shopper",
+      "changed": false
+     }
+    },
+    "investment_projection": {
+     "horizon_months": 120,
+     "total_contributed": 42000,
+     "projected_value": 60579.68,
+     "projected_gain": 18579.68
+    }
+   },
+   {
+    "simulation": "bnpl_6000_over_12m",
+    "verdict": "dangerous",
+    "transition": {
+     "from_state": {
+      "monthly_income": 1568.23,
+      "monthly_expenses": 1701.46,
+      "net_cashflow": -133.23,
+      "savings_rate": -0.085,
+      "debt_ratio": 0.0,
+      "current_balance": 1087.3,
+      "emergency_fund_months": 0.64,
+      "financial_health_score": 27.7,
+      "financial_personality": "impulse_shopper",
+      "personality_confidence": 0.6,
+      "risk_level": "high",
+      "monthly_loan_payment": 0.0
+     },
+     "events": [
+      {
+       "type": "new_subscription",
+       "monthly_amount": 500.0,
+       "name": "bnpl_12x"
+      }
+     ],
+     "to_state": {
+      "monthly_income": 1568.23,
+      "monthly_expenses": 2201.46,
+      "net_cashflow": -633.23,
+      "savings_rate": -0.4038,
+      "debt_ratio": 0.0,
+      "current_balance": 1087.3,
+      "emergency_fund_months": 0.49,
+      "financial_health_score": 27.0,
+      "financial_personality": "impulse_shopper",
+      "personality_confidence": 0.6,
+      "risk_level": "high",
+      "monthly_loan_payment": 0.0
+     }
+    },
+    "before": {
+     "monthly_income": 1568.23,
+     "monthly_expenses": 1701.46,
+     "net_cashflow": -133.23,
+     "savings_rate": -0.085,
+     "debt_ratio": 0.0,
+     "current_balance": 1087.3,
+     "emergency_fund_months": 0.64,
+     "financial_health_score": 27.7,
+     "financial_personality": "impulse_shopper",
+     "personality_confidence": 0.6,
+     "risk_level": "high",
+     "monthly_loan_payment": 0.0
+    },
+    "after": {
+     "monthly_income": 1568.23,
+     "monthly_expenses": 2201.46,
+     "net_cashflow": -633.23,
+     "savings_rate": -0.4038,
+     "debt_ratio": 0.0,
+     "current_balance": 1087.3,
+     "emergency_fund_months": 0.49,
+     "financial_health_score": 27.0,
+     "financial_personality": "impulse_shopper",
+     "personality_confidence": 0.6,
+     "risk_level": "high",
+     "monthly_loan_payment": 0.0
+    },
+    "twin_diff": [
+     {
+      "attribute": "monthly_expenses",
+      "before": 1701.46,
+      "after": 2201.46,
+      "delta": 500.0,
+      "reasons": []
+     },
+     {
+      "attribute": "net_cashflow",
+      "before": -133.23,
+      "after": -633.23,
+      "delta": -500.0,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "savings_rate",
+      "before": -0.085,
+      "after": -0.4038,
+      "delta": -0.3188,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "emergency_fund_months",
+      "before": 0.64,
+      "after": 0.49,
+      "delta": -0.15,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "financial_health_score",
+      "before": 27.7,
+      "after": 27.0,
+      "delta": -0.7,
+      "reasons": [
+       "savings rate fell",
+       "liquidity buffer shrank"
+      ]
+     }
+    ],
+    "changed_attributes": [
+     {
+      "attribute": "monthly_expenses",
+      "before": 1701.46,
+      "after": 2201.46,
+      "delta": 500.0
+     },
+     {
+      "attribute": "net_cashflow",
+      "before": -133.23,
+      "after": -633.23,
+      "delta": -500.0
+     },
+     {
+      "attribute": "savings_rate",
+      "before": -0.085,
+      "after": -0.4038,
+      "delta": -0.3188
+     },
+     {
+      "attribute": "emergency_fund_months",
+      "before": 0.64,
+      "after": 0.49,
+      "delta": -0.15
+     },
+     {
+      "attribute": "financial_health_score",
+      "before": 27.7,
+      "after": 27.0,
+      "delta": -0.7
+     }
+    ],
+    "forecast_after": {
+     "horizon_months": 24,
+     "projected_balances": [
+      454.07,
+      -179.16,
+      -812.39,
+      -1445.62,
+      -2078.85,
+      -2712.08,
+      -3345.31,
+      -3978.54,
+      -4611.77,
+      -5245.0,
+      -5878.23,
+      -6511.46,
+      -7144.69,
+      -7777.92,
+      -8411.15,
+      -9044.38,
+      -9677.61,
+      -10310.84,
+      -10944.07,
+      -11577.3,
+      -12210.53,
+      -12843.76,
+      -13476.99,
+      -14110.22
+     ],
+     "balance_in_12m": -6511.46,
+     "balance_in_24m": -14110.22,
+     "months_to_zero": 2
+    },
+    "events_applied": [
+     {
+      "type": "new_subscription",
+      "monthly_amount": 500.0,
+      "name": "bnpl_12x"
+     }
+    ],
+    "validation": [],
+    "health_report": {
+     "financial_health": {
+      "score": 27.0,
+      "grade": "poor"
+     },
+     "cash_flow": {
+      "monthly_income": 1568.23,
+      "monthly_expenses": 2201.46,
+      "net": -633.23,
+      "direction": "negative"
+     },
+     "risk": {
+      "level": "high",
+      "months_to_zero_balance": 2,
+      "overdraft_months_in_history": 0
+     },
+     "liquidity": {
+      "current_balance": 1087.3,
+      "emergency_fund_months": 0.49,
+      "target_months": 6,
+      "status": "underfunded"
+     },
+     "debt": {
+      "monthly_obligations": 0.0,
+      "debt_to_income": 0.0,
+      "status": "healthy"
+     },
+     "savings": {
+      "rate": -0.4038,
+      "benchmark": 0.2,
+      "status": "behind"
+     },
+     "financial_personality": {
+      "type": "impulse_shopper",
+      "confidence": 0.6
+     },
+     "financial_stability": {
+      "income_stability": 0.8189,
+      "cashflow_stability": 0.0,
+      "spending_volatility": 0.5521
+     },
+     "goal_progress": {
+      "goals": [],
+      "status": "no_goals_set"
+     },
+     "confidence": {
+      "months_of_history": 45,
+      "data_confidence": 1.0,
+      "personality_confidence": 0.6
+     },
+     "validation": [],
+     "summary": "Financial health is poor (27.0/100); cash flow is negative at -633/month; emergency fund covers 0.5 of the recommended 6 months; debt takes 0% of income; savings rate is -40%."
+    },
+    "explanation": "The Health Score decreased from 27.7 to 27.0 because a new recurring commitment of 500/month was added \u2014 as a result, your savings rate fell from -8.5% to -40.4%, your emergency fund fell from 0.6 months to 0.5 months, your net cash flow fell from -133 to -633.",
+    "before_after_card": {
+     "financial_health_score": {
+      "before": "27.7",
+      "after": "27.0",
+      "changed": true
+     },
+     "savings_rate": {
+      "before": "-8.5%",
+      "after": "-40.4%",
+      "changed": true
+     },
+     "emergency_fund_months": {
+      "before": "0.6 months",
+      "after": "0.5 months",
+      "changed": true
+     },
+     "debt_ratio": {
+      "before": "0.0%",
+      "after": "0.0%",
+      "changed": false
+     },
+     "risk_level": {
+      "before": "high",
+      "after": "high",
+      "changed": false
+     },
+     "financial_personality": {
+      "before": "impulse_shopper",
+      "after": "impulse_shopper",
+      "changed": false
+     }
+    }
+   },
+   {
+    "simulation": "car_6000",
+    "verdict": "dangerous",
+    "transition": {
+     "from_state": {
+      "monthly_income": 1568.23,
+      "monthly_expenses": 1701.46,
+      "net_cashflow": -133.23,
+      "savings_rate": -0.085,
+      "debt_ratio": 0.0,
+      "current_balance": 1087.3,
+      "emergency_fund_months": 0.64,
+      "financial_health_score": 27.7,
+      "financial_personality": "impulse_shopper",
+      "personality_confidence": 0.6,
+      "risk_level": "high",
+      "monthly_loan_payment": 0.0
+     },
+     "events": [
+      {
+       "type": "one_off_expense",
+       "amount": 1200.0
+      },
+      {
+       "type": "new_loan",
+       "principal": 4800.0,
+       "duration_months": 60,
+       "annual_rate": 0.05,
+       "disbursed_to_account": 0,
+       "monthly_payment": 90.58
+      }
+     ],
+     "to_state": {
+      "monthly_income": 1568.23,
+      "monthly_expenses": 1792.0419214912529,
+      "net_cashflow": -223.81,
+      "savings_rate": -0.1427,
+      "debt_ratio": 0.0578,
+      "current_balance": -112.70000000000005,
+      "emergency_fund_months": -0.06,
+      "financial_health_score": 21.4,
+      "financial_personality": "impulse_shopper",
+      "personality_confidence": 0.6,
+      "risk_level": "high",
+      "monthly_loan_payment": 90.58192149125276
+     }
+    },
+    "before": {
+     "monthly_income": 1568.23,
+     "monthly_expenses": 1701.46,
+     "net_cashflow": -133.23,
+     "savings_rate": -0.085,
+     "debt_ratio": 0.0,
+     "current_balance": 1087.3,
+     "emergency_fund_months": 0.64,
+     "financial_health_score": 27.7,
+     "financial_personality": "impulse_shopper",
+     "personality_confidence": 0.6,
+     "risk_level": "high",
+     "monthly_loan_payment": 0.0
+    },
+    "after": {
+     "monthly_income": 1568.23,
+     "monthly_expenses": 1792.0419214912529,
+     "net_cashflow": -223.81,
+     "savings_rate": -0.1427,
+     "debt_ratio": 0.0578,
+     "current_balance": -112.70000000000005,
+     "emergency_fund_months": -0.06,
+     "financial_health_score": 21.4,
+     "financial_personality": "impulse_shopper",
+     "personality_confidence": 0.6,
+     "risk_level": "high",
+     "monthly_loan_payment": 90.58192149125276
+    },
+    "twin_diff": [
+     {
+      "attribute": "monthly_expenses",
+      "before": 1701.46,
+      "after": 1792.0419214912529,
+      "delta": 90.5819,
+      "reasons": []
+     },
+     {
+      "attribute": "current_balance",
+      "before": 1087.3,
+      "after": -112.70000000000005,
+      "delta": -1200.0,
+      "reasons": []
+     },
+     {
+      "attribute": "monthly_loan_payment",
+      "before": 0.0,
+      "after": 90.58192149125276,
+      "delta": 90.5819,
+      "reasons": []
+     },
+     {
+      "attribute": "net_cashflow",
+      "before": -133.23,
+      "after": -223.81,
+      "delta": -90.58,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "savings_rate",
+      "before": -0.085,
+      "after": -0.1427,
+      "delta": -0.0577,
+      "reasons": [
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "debt_ratio",
+      "before": 0.0,
+      "after": 0.0578,
+      "delta": 0.0578,
+      "reasons": [
+       "monthly obligations increased"
+      ]
+     },
+     {
+      "attribute": "emergency_fund_months",
+      "before": 0.64,
+      "after": -0.06,
+      "delta": -0.7,
+      "reasons": [
+       "cash reserve consumed",
+       "recurring spending increased"
+      ]
+     },
+     {
+      "attribute": "financial_health_score",
+      "before": 27.7,
+      "after": 21.4,
+      "delta": -6.3,
+      "reasons": [
+       "savings rate fell",
+       "debt ratio increased",
+       "liquidity buffer shrank"
+      ]
+     }
+    ],
+    "changed_attributes": [
+     {
+      "attribute": "current_balance",
+      "before": 1087.3,
+      "after": -112.70000000000005,
+      "delta": -1200.0
+     },
+     {
+      "attribute": "emergency_fund_months",
+      "before": 0.64,
+      "after": -0.07,
+      "delta": -0.71
+     },
+     {
+      "attribute": "financial_health_score",
+      "before": 27.7,
+      "after": 25.0,
+      "delta": -2.7
+     },
+     {
+      "attribute": "monthly_expenses",
+      "before": 1701.46,
+      "after": 1792.0419214912529,
+      "delta": 90.5819
+     },
+     {
+      "attribute": "net_cashflow",
+      "before": -133.23,
+      "after": -223.81,
+      "delta": -90.58
+     },
+     {
+      "attribute": "savings_rate",
+      "before": -0.085,
+      "after": -0.1427,
+      "delta": -0.0577
+     },
+     {
+      "attribute": "debt_ratio",
+      "before": 0.0,
+      "after": 0.0578,
+      "delta": 0.0578
+     },
+     {
+      "attribute": "emergency_fund_months",
+      "before": -0.07,
+      "after": -0.06,
+      "delta": 0.01
+     },
+     {
+      "attribute": "financial_health_score",
+      "before": 25.0,
+      "after": 21.4,
+      "delta": -3.6
+     },
+     {
+      "attribute": "monthly_loan_payment",
+      "before": 0.0,
+      "after": 90.58192149125276,
+      "delta": 90.5819
+     }
+    ],
+    "forecast_after": {
+     "horizon_months": 24,
+     "projected_balances": [
+      -336.51,
+      -560.32,
+      -784.13,
+      -1007.94,
+      -1231.75,
+      -1455.56,
+      -1679.37,
+      -1903.18,
+      -2126.99,
+      -2350.8,
+      -2574.61,
+      -2798.42,
+      -3022.23,
+      -3246.04,
+      -3469.85,
+      -3693.66,
+      -3917.47,
+      -4141.28,
+      -4365.09,
+      -4588.9,
+      -4812.71,
+      -5036.52,
+      -5260.33,
+      -5484.14
+     ],
+     "balance_in_12m": -2798.42,
+     "balance_in_24m": -5484.14,
+     "months_to_zero": 1
+    },
+    "events_applied": [
+     {
+      "type": "one_off_expense",
+      "amount": 1200.0
+     },
+     {
+      "type": "new_loan",
+      "principal": 4800.0,
+      "duration_months": 60,
+      "annual_rate": 0.05,
+      "disbursed_to_account": 0,
+      "monthly_payment": 90.58
+     }
+    ],
+    "validation": [
+     {
+      "check": "emergency_fund_negative",
+      "severity": "info",
+      "message": "emergency fund is negative (-0.1 months) because the account balance is overdrawn (-113)"
+     }
+    ],
+    "health_report": {
+     "financial_health": {
+      "score": 21.4,
+      "grade": "poor"
+     },
+     "cash_flow": {
+      "monthly_income": 1568.23,
+      "monthly_expenses": 1792.0419214912529,
+      "net": -223.81,
+      "direction": "negative"
+     },
+     "risk": {
+      "level": "high",
+      "months_to_zero_balance": 1,
+      "overdraft_months_in_history": 0
+     },
+     "liquidity": {
+      "current_balance": -112.70000000000005,
+      "emergency_fund_months": -0.06,
+      "target_months": 6,
+      "status": "underfunded"
+     },
+     "debt": {
+      "monthly_obligations": 90.58192149125276,
+      "debt_to_income": 0.0578,
+      "status": "healthy"
+     },
+     "savings": {
+      "rate": -0.1427,
+      "benchmark": 0.2,
+      "status": "behind"
+     },
+     "financial_personality": {
+      "type": "impulse_shopper",
+      "confidence": 0.6
+     },
+     "financial_stability": {
+      "income_stability": 0.8189,
+      "cashflow_stability": 0.0,
+      "spending_volatility": 0.5521
+     },
+     "goal_progress": {
+      "goals": [],
+      "status": "no_goals_set"
+     },
+     "confidence": {
+      "months_of_history": 45,
+      "data_confidence": 1.0,
+      "personality_confidence": 0.6
+     },
+     "validation": [
+      {
+       "check": "emergency_fund_negative",
+       "severity": "info",
+       "message": "emergency fund is negative (-0.1 months) because the account balance is overdrawn (-113)"
+      }
+     ],
+     "summary": "Financial health is poor (21.4/100); cash flow is negative at -224/month; emergency fund covers -0.1 of the recommended 6 months; debt takes 6% of income; savings rate is -14%."
+    },
+    "explanation": "The Health Score decreased from 27.7 to 21.4 because a one-time payment of 1,200 left the account; the loan adds 91/month in obligations for 60 months \u2014 as a result, your debt-to-income ratio rose from 0.0% to 5.8%, your savings rate fell from -8.5% to -14.3%, your emergency fund fell from 0.6 months to -0.1 months, your account balance fell from 1,087 to -113, your net cash flow fell from -133 to -224.",
+    "before_after_card": {
+     "financial_health_score": {
+      "before": "27.7",
+      "after": "21.4",
+      "changed": true
+     },
+     "savings_rate": {
+      "before": "-8.5%",
+      "after": "-14.3%",
+      "changed": true
+     },
+     "emergency_fund_months": {
+      "before": "0.6 months",
+      "after": "-0.1 months",
+      "changed": true
+     },
+     "debt_ratio": {
+      "before": "0.0%",
+      "after": "5.8%",
+      "changed": true
+     },
+     "risk_level": {
+      "before": "high",
+      "after": "high",
+      "changed": false
+     },
+     "financial_personality": {
+      "before": "impulse_shopper",
+      "after": "impulse_shopper",
+      "changed": false
+     }
+    }
+   }
+  ]
+ }
+}
