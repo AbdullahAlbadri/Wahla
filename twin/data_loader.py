@@ -35,7 +35,7 @@ def _finalize_transactions(df: pd.DataFrame) -> pd.DataFrame:
         df[col] = pd.to_numeric(df[col], errors="coerce")
     df["account_id"] = df["account_id"].astype(int)
 
-    df = df.dropna(subset=["trans_date", "amount"])
+    df = df.dropna(subset=["trans_date", "amount"]).copy()
     df = df.drop_duplicates(subset=["trans_id"])
 
     # this Berka variant stores amounts already signed (debits negative);
@@ -128,7 +128,7 @@ def _finalize_loans(df: pd.DataFrame) -> pd.DataFrame:
     df["loan_id"] = pd.to_numeric(df["loan_id"], errors="coerce")
     df["account_id"] = pd.to_numeric(df["account_id"], errors="coerce")
 
-    df = df.dropna(subset=["loan_id", "account_id", "amount", "duration", "payments"])
+    df = df.dropna(subset=["loan_id", "account_id", "amount", "duration", "payments"]).copy()
     df["loan_id"] = df["loan_id"].astype(int)
     df["account_id"] = df["account_id"].astype(int)
     df = df.drop_duplicates(subset=["loan_id"])

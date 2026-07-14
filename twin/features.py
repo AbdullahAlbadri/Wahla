@@ -28,9 +28,18 @@ from . import config
 
 
 def _cv(series: pd.Series) -> float:
-    """Coefficient of variation, safe against zero mean."""
+    """Coefficient of variation, safe against zero mean or too few observations.
+
+    pandas std() uses ddof=1 by default, which is undefined (NaN) for a
+    single-element series — a brand-new live-connected account with under a
+    month of history hits this every time. Treat "not enough data yet" as
+    zero volatility rather than propagating NaN into the health score.
+    """
+    if len(series) < 2:
+        return 0.0
     m = series.mean()
-    return float(series.std() / m) if m else 0.0
+    std = series.std()
+    return float(std / m) if m and pd.notna(std) else 0.0
 
 
 def detect_salary(acct_tx: pd.DataFrame) -> float:

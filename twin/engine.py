@@ -6,11 +6,29 @@ salary change, or simulated decision mutates the state and recomputes the
 derived attributes. The AI layer reasons from `to_dict()`, never from raw
 transactions.
 """
+import math
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 
 from .features import health_score
 from .personality import classify, risk_level
+
+
+def _sanitize(value):
+    """Replace NaN/Infinity with None so to_dict() output is always valid JSON.
+
+    Feature engineering on sparse or edge-case data (e.g. a single month of
+    history) can still produce a non-finite float somewhere despite the
+    guards in features.py — this is the last line of defense so the API
+    serializes the Twin instead of 500ing.
+    """
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    if isinstance(value, dict):
+        return {k: _sanitize(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_sanitize(v) for v in value]
+    return value
 
 
 @dataclass
@@ -201,7 +219,7 @@ class FinancialTwin:
     def to_dict(self) -> dict:
         d = asdict(self)
         d.pop("event_log", None)
-        return d
+        return _sanitize(d)
 
 
 def amortized_payment(principal: float, annual_rate: float, months: int) -> float:
