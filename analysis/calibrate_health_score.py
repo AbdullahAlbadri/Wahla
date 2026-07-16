@@ -30,7 +30,7 @@ from twin.features import build_account_features
 
 MIN_MONTHS_HISTORY = 6
 N_FOLDS = 5
-N_REPEATS = 50
+N_REPEATS = 15
 
 
 def _components(feats: dict) -> np.ndarray:
@@ -70,14 +70,21 @@ def sigmoid(z):
     return 1 / (1 + np.exp(-np.clip(z, -30, 30)))
 
 
-def fit_logistic(X, y, lr=0.5, epochs=8000, l2=0.05):
+def fit_logistic(X, y, lr=1.0, epochs=1500, l2=0.05, prior=None, prior_strength=0.0):
+    """L2 toward zero by default. Pass `prior` (length-4 array) + prior_strength
+    to shrink toward an informative prior instead (Bayesian ridge) — e.g. the
+    current hand-picked weights' direction, so data nudges rather than
+    replaces domain judgment when the sample is this small.
+    """
     n, d = X.shape
     Xa = np.hstack([np.ones((n, 1)), X])
     w = np.zeros(d + 1)
+    prior_vec = prior if prior is not None else np.zeros(d)
     for _ in range(epochs):
         p = sigmoid(Xa @ w)
         grad = Xa.T @ (p - y) / n
         grad[1:] += l2 * w[1:] / n
+        grad[1:] += prior_strength * (w[1:] - prior_vec) / n
         w -= lr * grad
     return w  # w[0]=intercept, w[1:]=[savings, stability, debt, ef]
 
@@ -125,9 +132,18 @@ def main():
     print(f"\n{len(y)} examples ({y.sum()} defaulted, {len(y) - y.sum()} repaid) "
           f"— same leakage-free extraction as health_score_auc.py\n")
 
-    baseline_auc = auc(list(current_score), list(y))
-    print(f"Baseline (current hand-picked weights) AUC vs default: {baseline_auc:.3f}  "
-          f"[predicting repayment: {1 - baseline_auc:.3f}]")
+    # Comparable metric, defined once, used everywhere below:
+    # "discrimination" = AUC of a RISK score (higher = more likely to default)
+    # ranking real defaults higher. health_score is a GOODNESS score (higher =
+    # healthier), so its comparable number is 1-AUC(health_score, defaulted).
+    # A model that outputs p(default) directly is already a risk score, so its
+    # discrimination is just AUC(p_default, defaulted) with NO extra flip —
+    # mixing the two conventions was a bug in an earlier version of this
+    # script that silently inverted the shrinkage-sweep table below.
+    baseline_auc_raw = auc(list(current_score), list(y))
+    baseline_discrimination = 1 - baseline_auc_raw
+    print(f"Baseline (current hand-picked weights) discrimination AUC: "
+          f"{baseline_discrimination:.3f}  (0.5=chance, 1.0=perfect)")
 
     # honest out-of-sample estimate: repeated stratified k-fold
     cv_aucs = []
@@ -141,12 +157,13 @@ def main():
                 cv_aucs.append(fold_auc)
 
     cv_aucs = np.array(cv_aucs)
-    print(f"\nCross-validated (out-of-sample) AUC over {N_FOLDS}-fold x {N_REPEATS} repeats:")
-    print(f"  predicting default: mean {cv_aucs.mean():.3f}, "
-          f"median {np.median(cv_aucs):.3f}, std {cv_aucs.std():.3f}")
-    print(f"  predicting repayment (useful framing): mean {1 - cv_aucs.mean():.3f}")
+    print(f"\nCross-validated (out-of-sample) discrimination AUC over "
+          f"{N_FOLDS}-fold x {N_REPEATS} repeats:")
+    print(f"  mean {cv_aucs.mean():.3f}, median {np.median(cv_aucs):.3f}, "
+          f"std {cv_aucs.std():.3f}")
     print(f"  [95% range across folds: {np.percentile(cv_aucs, 2.5):.3f} - "
           f"{np.percentile(cv_aucs, 97.5):.3f}]  <- this wide because n=25 defaults is tiny")
+    print(f"  compare directly to baseline {baseline_discrimination:.3f} — same metric, no flip needed")
 
     # final weights fit on ALL data, for reference if this gets deployed
     w_full = fit_logistic(X, y)
@@ -160,9 +177,34 @@ def main():
 
     in_sample_p = predict_proba(w_full, X)
     in_sample_auc = auc(list(in_sample_p), list(y))
-    print(f"\nIn-sample AUC with calibrated weights (optimistic, NOT the honest estimate): "
-          f"{in_sample_auc:.3f}")
-    print("Compare the CV mean above to the baseline 0.561 — that's the real answer.")
+    print(f"\nIn-sample discrimination with calibrated weights "
+          f"(optimistic, NOT the honest estimate): {in_sample_auc:.3f}")
+    print(f"Compare the CV mean above to the baseline {baseline_discrimination:.3f} "
+          "— that's the real answer.")
+
+    # ---- middle ground: shrink toward the current weights instead of fitting freely ----
+    print(f"\n{'='*60}")
+    print("Shrinkage toward the current hand-picked weights (Bayesian ridge)")
+    print("prior_strength=0 -> free fit (the failed experiment above); "
+          "prior_strength=inf -> should converge to the fixed baseline")
+    current = np.array(list(config.HEALTH_SCORE_WEIGHTS.values()))
+    prior_vec = -current / current.sum() * 3.0  # negative: protective -> lower default risk
+
+    for strength in [0, 0.5, 2, 8, 30, 100]:
+        cv_aucs_s = []
+        rng = np.random.default_rng(42)
+        for _ in range(N_REPEATS):
+            for train_idx, test_idx in stratified_kfold_indices(y, N_FOLDS, rng):
+                w = fit_logistic(X[train_idx], y[train_idx],
+                                  prior=prior_vec, prior_strength=strength)
+                p = predict_proba(w, X[test_idx])
+                fold_auc = auc(list(p), list(y[test_idx]))
+                if fold_auc is not None:
+                    cv_aucs_s.append(fold_auc)
+        print(f"  prior_strength={strength:>5}: discrimination AUC = {np.mean(cv_aucs_s):.3f}")
+
+    print(f"\nBaseline (no fitting at all) for reference: {baseline_discrimination:.3f}  "
+          "<- strength=100 above should be close to this")
 
 
 if __name__ == "__main__":

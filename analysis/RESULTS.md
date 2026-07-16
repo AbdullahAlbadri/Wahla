@@ -40,31 +40,48 @@ Tested improvement #1 directly instead of assuming it would work: fit a
 logistic regression on the same 4 health-score components (savings,
 cashflow stability, debt ratio, emergency fund), predicting real default,
 on the same 214 leakage-free examples (25 defaults). Evaluated honestly
-with repeated 5-fold stratified cross-validation (50 repeats) — not a
-single train/test split, and not the in-sample fit, both of which would be
-optimistic on this little data.
+with repeated 5-fold stratified cross-validation — not a single train/test
+split, and not the in-sample fit, both of which would be optimistic on this
+little data. One metric throughout: "discrimination AUC" — AUC of a risk
+score (higher = more likely to default) against real default, so the
+baseline's 0.561 (a flip of health_score, which runs the opposite way) and
+every model below are directly comparable with no sign games.
 
-| | AUC (predicting repayment) |
+| | discrimination AUC |
 |---|---|
 | Baseline (current hand-picked weights) | 0.561 |
 | Calibrated weights — in-sample (optimistic, don't trust this one) | 0.613 |
-| **Calibrated weights — cross-validated (honest, out-of-sample)** | **0.493** |
-| 95% range across CV folds | 0.293 – 0.726 |
+| **Calibrated weights — cross-validated (honest, out-of-sample)** | **0.508** |
+| 95% range across CV folds | 0.266 – 0.732 |
 
-**Answer: no, calibration does not help — it makes things worse.** The
-in-sample number (0.613) looks like an improvement, which is exactly the
-overfitting trap the CV estimate is there to catch: with only 25 default
-events for a 4-parameter model, there isn't enough signal to calibrate
-reliably (rule of thumb wants ~10+ events per parameter; this has ~6). The
-95% range spans from worse-than-random to decent, which is a symptom of
-too little data, not evidence either way about the real relationship.
+**Answer: no, free calibration does not help.** The in-sample number (0.613)
+looks like an improvement, which is exactly the overfitting trap the CV
+estimate is there to catch: with only 25 default events for a 4-parameter
+model, there isn't enough signal to calibrate reliably (rule of thumb wants
+~10+ events per parameter; this has ~6). The 95% range spans from
+worse-than-random to decent, a symptom of too little data.
 
-This doesn't mean the *idea* was wrong — it means **25 labeled defaults is
-too small a sample for this approach**, full stop. Real next steps, in
-order of cost: (a) relax the ≥6-months-history filter to recover some of
-the 20 excluded loans, (b) fit a simpler 1-2 parameter model instead of 4
-(less to overfit), (c) get more labeled outcomes — the underlying
-constraint, not a code problem.
+**Middle ground tested: shrink the fitted weights toward the current ones
+instead of fitting freely** (Bayesian ridge, prior = current hand-picked
+weights, `prior_strength` controls how hard to pull toward them):
+
+| prior_strength | discrimination AUC |
+|---|---|
+| 0 (free fit) | 0.508 |
+| 0.5 | 0.539 |
+| 2 | 0.551 |
+| 8 | 0.555 |
+| 30 | 0.559 |
+| 100 (≈ fixed baseline) | 0.561 |
+
+Monotonic, and converges exactly to 0.561 at high strength — a real sanity
+check that the math is doing what it should. **No amount of shrinkage beats
+the baseline; the best any setting achieves is matching it.** So this isn't
+"the idea was wrong" — it's that **25 labeled defaults can't support fitting
+even a heavily-regularized 4-parameter model better than just keeping the
+hand-picked weights.** Real next steps, in order of cost: (a) relax the
+≥6-months-history filter to recover some of the 20 excluded loans, (b) get
+more labeled outcomes — the underlying constraint, not a code problem.
 
 ## 2. 24-month balance forecast (6-month backtest)
 
