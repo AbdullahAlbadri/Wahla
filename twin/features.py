@@ -129,10 +129,12 @@ def build_account_features(acct_tx: pd.DataFrame, loans: pd.DataFrame) -> dict:
 
     active_loans = loans[loans["status"].isin(["running_ok", "running_in_debt"])]
     monthly_loan_payment = float(active_loans["payments"].sum())
+    avg_monthly_balance = float(monthly["end_balance"].mean())
 
     features = {
         "monthly_income": round(income_m, 2),
         "monthly_expenses": round(expenses_m, 2),
+        "avg_monthly_balance": round(avg_monthly_balance, 2),
         "net_cashflow": round(income_m - expenses_m, 2),
         "savings_rate": round((income_m - expenses_m) / income_m, 4) if income_m else 0.0,
         "spending_volatility": round(_cv(monthly["expenses"]), 4),

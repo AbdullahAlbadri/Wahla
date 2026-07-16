@@ -14,7 +14,8 @@ TWIN_DIR = Path(__file__).parent / "twin"
 
 # modules that must be pure state-machines (no raw-data access)
 DOWNSTREAM = ["engine.py", "simulation.py", "diff.py", "explain.py",
-              "personality.py", "report.py", "validation.py"]
+              "personality.py", "report.py", "validation.py",
+              "budget_rule.py", "suggestions.py"]
 
 # the only module allowed to know about the data source
 FORBIDDEN_IMPORTS = {"data_loader", "pandas", "csv", "sqlite3"}

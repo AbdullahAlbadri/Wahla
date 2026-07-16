@@ -45,6 +45,7 @@ class FinancialTwin:
     debt_ratio: float = 0.0
     monthly_loan_payment: float = 0.0
     current_balance: float = 0.0
+    avg_monthly_balance: float = 0.0
     emergency_fund_months: float = 0.0
     detected_salary: float = 0.0
     weekend_spending_ratio: float = 0.0

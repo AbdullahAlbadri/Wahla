@@ -14,7 +14,8 @@ TWIN_DIR = Path(__file__).parent / "twin"
 
 # modules that must be isolated from raw transactions
 DOWNSTREAM = ["engine.py", "simulation.py", "diff.py", "report.py",
-              "explain.py", "validation.py", "personality.py"]
+              "explain.py", "validation.py", "personality.py",
+              "budget_rule.py", "suggestions.py"]
 # forbidden dependencies for those modules
 FORBIDDEN = {"data_loader", "pandas", "pd"}
 

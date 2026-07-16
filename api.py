@@ -6,6 +6,9 @@ Endpoints (all JSON):
   GET  /api/twin/{account_id}            full Twin state
   POST /api/simulate/{account_id}        Wahla decision → simulation result
   GET  /api/alternatives/{account_id}    smarter-alternative suggestions
+  GET  /api/budget/{account_id}          50/30/20 split + monthly adjustment rule
+  POST /api/decision-check/{account_id}  Base Logic: allow/deny a spending decision
+  POST /api/suggestions/{account_id}     passive product suggestion layer
 
 Run: python3 -m uvicorn api:app --port 8000 --reload
 """
@@ -16,11 +19,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from twin import config
+from twin.budget_rule import budget_ratios, decision_check, monthly_adjustment
 from twin.data_loader import load_live_loans, load_live_transactions
 from twin.engine import FinancialTwin
 from twin.features import build_account_features
 from twin.memory import build_timeline
 from twin.simulation import SimulationEngine
+from twin.suggestions import generate_suggestions
 
 app = FastAPI(title="Financial Digital Twin API")
 app.add_middleware(
@@ -200,3 +205,47 @@ def alternatives(account_id: int, monthly: float, months: int):
             "count": len(twin.recurring_payments),
         },
     }
+
+
+@app.get("/api/budget/{account_id}")
+def budget(account_id: int):
+    """50/30/20 split for this Twin, and which monthly adjustment rule (if any) applies."""
+    twin = _twin(account_id)
+    state = twin.to_dict()
+    return {
+        "ratios": budget_ratios(state),
+        "targets": config.BUDGET_RULE_TARGETS,
+        "monthly_adjustment": monthly_adjustment(state),
+    }
+
+
+class DecisionCheckRequest(BaseModel):
+    is_need: bool
+    amount: float
+    can_pay_installments: bool = False
+
+
+@app.post("/api/decision-check/{account_id}")
+def decision_check_endpoint(account_id: int, req: DecisionCheckRequest):
+    """Base Logic 4-step tree: should this spending decision be added?"""
+    twin = _twin(account_id)
+    return decision_check(
+        twin.to_dict(), is_need=req.is_need, amount=req.amount,
+        can_pay_installments=req.can_pay_installments)
+
+
+class SuggestionsRequest(BaseModel):
+    signals: dict = {}
+    history: list[dict] = []
+
+
+@app.post("/api/suggestions/{account_id}")
+def suggestions_endpoint(account_id: int, req: SuggestionsRequest):
+    """Passive product suggestion layer, priority-ordered, cooldown-filtered.
+
+    `signals` carries the optional stub inputs (idle-cash product status,
+    a pending car/real-estate purchase, revolving card balance, etc.) —
+    see twin/suggestions.py's module docstring for the full key list.
+    """
+    twin = _twin(account_id)
+    return generate_suggestions(twin.to_dict(), signals=req.signals, history=req.history)

@@ -71,3 +71,51 @@ HEALTH_SCORE_WEIGHTS = {
     "debt_ratio": 0.25,
     "emergency_fund": 0.25,
 }
+
+# ---- 50/30/20 budget rule (Wahla - Logic.pdf) ----
+BUDGET_RULE_TARGETS = {"needs": 0.50, "wants": 0.30, "savings": 0.20}
+
+# Best-effort need/want split of debit categories. Berka's category set is
+# coarse — "household" is its catch-all for most day-to-day spending, not a
+# clean needs-only bucket — so this mapping is a placeholder until a real
+# Open Banking feed with merchant-category codes replaces it. Swap this dict,
+# nothing downstream of budget_rule.py needs to change.
+NEED_CATEGORIES = {"household", "loan_payment", "insurance", "bank_fee", "overdraft_fee"}
+WANT_CATEGORIES = {"uncategorized"}
+
+MONTHLY_ADJUSTMENT_STEP = 0.025   # midpoint of the spec's "2-3% per month"
+SUGGESTION_COOLDOWN_DAYS = 30
+
+# ---- Passive product suggestion catalog (illustrative figures from spec) ----
+SAVINGS_TIERS = [
+    {"max_balance": 1_000_000, "aer_min": 0.0150, "aer_max": 0.0200},
+    {"max_balance": 3_000_000, "aer_min": 0.0175, "aer_max": 0.0222},
+    {"max_balance": None, "aer_min": 0.0220, "aer_max": 0.0300},
+]
+
+CAR_FINANCING_TENORS = [
+    {"years": 3, "annual_rate": 0.0300},
+    {"years": 4, "annual_rate": 0.0300},
+    {"years": 5, "annual_rate": 0.0300},
+    {"years": 5, "annual_rate": 0.0361},
+]
+
+REAL_ESTATE_TENORS = [10, 15, 20]          # years
+REAL_ESTATE_MAX_FINANCING_RATIO = 0.90
+
+CARD_TIERS = {
+    "mada_classic": {"annual_fee": 0, "intl_rate": 0.0265},
+    "mada_gold": {"annual_fee": 0, "intl_rate": 0.0220},
+    "visa": {"annual_fee": 150, "intl_rate": 0.0115},
+}
+
+BUSINESS_FINANCING_TIERS = [
+    {"size": "micro", "max_amount": 500_000, "margin_min": 0.06, "margin_max": 0.08,
+     "max_months": 84},
+    {"size": "small", "max_amount": 6_250_000, "margin_min": None, "margin_max": None,
+     "max_months": None},
+    {"size": "medium", "max_amount": 18_750_000, "margin_min": None, "margin_max": None,
+     "max_months": None},
+]
+INSTALLMENT_MARGIN = 0.035        # fixed-installment product, vs 38%+ revolving APR
+REVOLVING_APR_ASSUMED = 0.38
