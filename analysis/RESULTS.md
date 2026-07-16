@@ -30,11 +30,41 @@ what the score could actually have known at decision time:
 close to random, far from the 22.8-vs-42.8 framing's implied strength.
 
 **Takeaway:** the score has *some* real signal (>0.5, and consistent in
-direction) but nowhere near what the original claim implied. This is the
-concrete case for improvement #1 (calibrate the health-score weights via
-logistic regression on these same 214 leakage-free examples, rather than the
-current hand-picked weights) — a natural next step now that this eval
-harness exists to measure whether calibration actually helps.
+direction) but nowhere near what the original claim implied.
+
+## 1b. Does calibrating the weights with logistic regression actually help?
+
+`analysis/calibrate_health_score.py`
+
+Tested improvement #1 directly instead of assuming it would work: fit a
+logistic regression on the same 4 health-score components (savings,
+cashflow stability, debt ratio, emergency fund), predicting real default,
+on the same 214 leakage-free examples (25 defaults). Evaluated honestly
+with repeated 5-fold stratified cross-validation (50 repeats) — not a
+single train/test split, and not the in-sample fit, both of which would be
+optimistic on this little data.
+
+| | AUC (predicting repayment) |
+|---|---|
+| Baseline (current hand-picked weights) | 0.561 |
+| Calibrated weights — in-sample (optimistic, don't trust this one) | 0.613 |
+| **Calibrated weights — cross-validated (honest, out-of-sample)** | **0.493** |
+| 95% range across CV folds | 0.293 – 0.726 |
+
+**Answer: no, calibration does not help — it makes things worse.** The
+in-sample number (0.613) looks like an improvement, which is exactly the
+overfitting trap the CV estimate is there to catch: with only 25 default
+events for a 4-parameter model, there isn't enough signal to calibrate
+reliably (rule of thumb wants ~10+ events per parameter; this has ~6). The
+95% range spans from worse-than-random to decent, which is a symptom of
+too little data, not evidence either way about the real relationship.
+
+This doesn't mean the *idea* was wrong — it means **25 labeled defaults is
+too small a sample for this approach**, full stop. Real next steps, in
+order of cost: (a) relax the ≥6-months-history filter to recover some of
+the 20 excluded loans, (b) fit a simpler 1-2 parameter model instead of 4
+(less to overfit), (c) get more labeled outcomes — the underlying
+constraint, not a code problem.
 
 ## 2. 24-month balance forecast (6-month backtest)
 
@@ -65,8 +95,14 @@ number.
 ## What this changes about the pitch
 
 Don't present "22.8 vs 42.8" as-is — it's measuring the wrong thing
-(post-outcome data). Presenting the leakage-free **0.561 AUC** honestly, plus
-the forecast's **46.3% MAE**, is a weaker headline number but a defensible
-one — and turning "AUC went from ~0.56 to X after calibration" into an actual
-before/after story is a stronger demo moment than a single unverified
-average-gap claim.
+(post-outcome data). The honest numbers are weaker but defensible: **0.561
+AUC** (leakage-free) on the health score, **46.3% MAE** on the 6-month
+forecast, and — tested, not assumed — **calibration doesn't beat the
+hand-picked weights at this sample size** (0.493 CV AUC vs 0.561 baseline).
+
+That last point is worth saying out loud to judges rather than hiding:
+"we built an eval harness, tested whether ML calibration would help, and it
+didn't at n=25 — so we know *why* we're not using it, instead of just not
+having tried." That's a stronger technical story than either an unverified
+average-gap claim or an ML feature added without checking it actually
+works.
