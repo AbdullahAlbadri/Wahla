@@ -79,9 +79,61 @@ check that the math is doing what it should. **No amount of shrinkage beats
 the baseline; the best any setting achieves is matching it.** So this isn't
 "the idea was wrong" — it's that **25 labeled defaults can't support fitting
 even a heavily-regularized 4-parameter model better than just keeping the
-hand-picked weights.** Real next steps, in order of cost: (a) relax the
-≥6-months-history filter to recover some of the 20 excluded loans, (b) get
-more labeled outcomes — the underlying constraint, not a code problem.
+hand-picked weights.**
+
+## 1c. Is there a stronger signal among the *other* ~15 computed features?
+
+`analysis/feature_scan.py`
+
+The 4 components above are the ones `health_score()` happens to use — not
+necessarily the most predictive ones. Scanned every other feature
+`build_account_features()` already computes (no new data needed) for raw
+discrimination against real default, same 214 leakage-free examples:
+
+| feature | AUC | direction |
+|---|---|---|
+| **cash_usage_ratio** | **0.726** | higher → more likely default |
+| income_stability | 0.678 | lower → more likely default |
+| emergency_fund_months | 0.619 | lower → more likely default |
+| current_balance | 0.618 | lower → more likely default |
+| spending_volatility | 0.606 | higher → more likely default |
+| months_of_history | 0.604 | lower → more likely default |
+| weekend_spending_ratio | 0.603 | higher → more likely default |
+| financial_health_score (current formula) | 0.561 | — |
+| debt_ratio (25% of the current formula's weight) | **0.500** | no signal at all |
+
+`cash_usage_ratio` — how much of someone's spending is cash withdrawals,
+already computed by `features.py`, never surfaced anywhere in the UI or
+the health score — beats the entire current formula on its own, with no
+fitting at all (a raw feature, not a fitted weight, so none of the
+overfitting risk from section 1b applies to it directly).
+
+**Verified this isn't just luck from scanning 18 candidates**: re-evaluated
+`cash_usage_ratio`'s AUC across 30×5-fold cross-validation (same feature,
+no re-selection per fold) — mean 0.727, median 0.729, closely matching the
+full-sample 0.726. A fitted model would show a large in-sample-vs-CV gap
+(section 1b did); a stable raw feature doesn't, and this one doesn't.
+
+Caveat that's still real: choosing the best of 18 candidates *on the same
+214 examples* is itself a mild form of selection bias (the "look elsewhere
+effect") — the fold-stability check above addresses re-fitting risk, not
+the initial selection step. Treat 0.726 as a strong lead to validate
+against new loan outcomes as they arrive, not a guaranteed population
+value.
+
+**Concrete, low-risk recommendation**: `debt_ratio` currently gets 25% of
+the health score's weight and has *zero* real discriminative power (AUC
+0.500 — literal chance) in this leakage-free test, while `cash_usage_ratio`
+gets 0% weight and is the single strongest signal found. Don't refit a new
+4-parameter formula (section 1b already showed that fails at this sample
+size) — simplest safe move is surfacing `cash_usage_ratio` as its own
+signal (a UI insight, or a simple flag/threshold) rather than folding it
+into a re-weighted composite score that would inherit the same
+small-sample overfitting problem.
+
+Real next steps, in order of cost: (a) relax the ≥6-months-history filter
+to recover some of the 20 excluded loans, (b) get more labeled outcomes —
+the underlying constraint, not a code problem.
 
 ## 2. 24-month balance forecast (6-month backtest)
 
