@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
+import { createProxyMiddleware } from "http-proxy-middleware";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -30,5 +31,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
+
+// Proxy everything else to the frontend dev server
+app.use(
+  "/",
+  createProxyMiddleware({
+    target: "http://localhost:3000",
+    changeOrigin: true,
+    ws: true,
+  }),
+);
 
 export default app;
