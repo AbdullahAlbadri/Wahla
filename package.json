@@ -9,6 +9,10 @@
   },
   "scripts": {
     "dev:api": "python3 -m uvicorn api:app --port 8000 --reload"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^2.x.x",
+    "@remix-run/node": "^2.x.x",
+    "@remix-run/react": "^2.x.x"
   }
 }
-
