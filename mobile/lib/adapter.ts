@@ -217,6 +217,13 @@ function buildBehavioralTips(
       detail: `${top.percentage}% من مصروفاتك ضمن فئة "غير مصنف" — راجعي كشف حسابك لمعرفة أين يذهب هذا المبلغ فعليًا قبل ما تقررين تقليل أي بند.`,
       icon: "help-circle-outline",
     });
+  } else if (top && /سحب نقدي/.test(top.name) && top.percentage >= 35) {
+    tips.push({
+      id: "cash_withdrawal_dominant",
+      title: "أغلب إنفاقك عبر سحب نقدي",
+      detail: `${top.percentage}% من مصروفاتك سحب نقدي من الصراف — هذا المبلغ يخرج من حسابك بدون تفاصيل أكثر، حاولي تتبعي وجهته الفعلية (مصاريف يومية، مشتريات نقدية) لتحديد أين ممكن تقللين.`,
+      icon: "cash-outline",
+    });
   }
 
   if (tips.length === 0 && savings && savings.pct - savings.ideal >= 10) {

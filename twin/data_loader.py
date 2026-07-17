@@ -46,12 +46,31 @@ def _finalize_transactions(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def _refine_uncategorized_spending(df: pd.DataFrame) -> pd.DataFrame:
+    """Berka leaves k_symbol (the `category` column) blank for roughly half
+    of all rows, which collapses them into a generic "uncategorized" bucket.
+    But the separate `operation` column still carries real information for
+    those same rows — HOW the money left the account (ATM/cash machine,
+    outgoing bank transfer, card withdrawal) — that was simply being
+    discarded. This promotes that already-real signal into the category
+    itself for spending rows only, instead of hiding it behind a catch-all
+    label. No invented data: every relabeled row keeps the operation code
+    the source data actually recorded for it.
+    """
+    is_spend = df["category"].eq("uncategorized") & df["trans_type"].isin(["debit", "cash_withdrawal"])
+    has_operation_detail = df["operation"].isin(["cash_withdrawal", "outgoing_transfer", "card_withdrawal"])
+    refine = is_spend & has_operation_detail
+    df.loc[refine, "category"] = df.loc[refine, "operation"]
+    return df
+
+
 def load_transactions() -> pd.DataFrame:
     """Load, clean and normalize the transactions table from the Berka TSV export."""
     df = _read("trans")
     df["trans_type"] = df["trans_type"].str.strip().map(config.TRANS_TYPE).fillna("unknown")
     df["operation"] = df["operation"].str.strip().map(config.OPERATION).fillna("other")
     df["category"] = df["category"].str.strip().map(config.CATEGORY).fillna("uncategorized")
+    df = _refine_uncategorized_spending(df)
     return _finalize_transactions(df)
 
 

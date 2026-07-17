@@ -342,4 +342,7 @@ export const categoryLabels: Record<string, { label: string; icon: string; color
   bank_fee: { label: "رسوم بنكية", icon: "receipt-outline", color: "#EF4444" },
   overdraft_fee: { label: "رسوم سحب مكشوف", icon: "alert-circle-outline", color: "#DC2626" },
   uncategorized: { label: "غير مصنف", icon: "ellipsis-horizontal-outline", color: "#9CA3AF" },
+  cash_withdrawal: { label: "سحب نقدي", icon: "cash-outline", color: "#8B5CF6" },
+  outgoing_transfer: { label: "تحويلات صادرة", icon: "arrow-redo-outline", color: "#0EA5E9" },
+  card_withdrawal: { label: "سحب بالبطاقة", icon: "card-outline", color: "#EC4899" },
 };

@@ -82,7 +82,11 @@ BUDGET_RULE_TARGETS = {"needs": 0.50, "wants": 0.30, "savings": 0.20}
 # Open Banking feed with merchant-category codes replaces it. Swap this dict,
 # nothing downstream of budget_rule.py needs to change.
 NEED_CATEGORIES = {"household", "loan_payment", "insurance", "bank_fee", "overdraft_fee"}
-WANT_CATEGORIES = {"uncategorized"}
+# cash_withdrawal/outgoing_transfer/card_withdrawal are the real operation
+# codes data_loader.py promotes out of "uncategorized" (see
+# _refine_uncategorized_spending) — they replace it here 1:1 so this split
+# behaves exactly as before, just with visibility into what was inside it.
+WANT_CATEGORIES = {"uncategorized", "cash_withdrawal", "outgoing_transfer", "card_withdrawal"}
 
 MONTHLY_ADJUSTMENT_STEP = 0.025   # midpoint of the spec's "2-3% per month"
 SUGGESTION_COOLDOWN_DAYS = 30
