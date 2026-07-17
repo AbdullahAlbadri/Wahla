@@ -57,13 +57,13 @@ export default function HomeScreen() {
             backend (Twin has no name, only anonymized demographics), so
             this stays a generic greeting rather than a fabricated name. */}
         <View style={styles.headerUser}>
+          <View style={[styles.avatar, { backgroundColor: colors.primary + '33', borderColor: colors.primary + '66' }]}>
+            <Ionicons name="person" size={18} color={colors.primary} />
+          </View>
           <View style={styles.userTextGroup}>
             <Text style={[styles.userName, { color: colors.foreground, fontFamily: 'Inter_700Bold' }]}>
               مرحباً بك
             </Text>
-          </View>
-          <View style={[styles.avatar, { backgroundColor: colors.primary + '33', borderColor: colors.primary + '66' }]}>
-            <Ionicons name="person" size={18} color={colors.primary} />
           </View>
         </View>
 
