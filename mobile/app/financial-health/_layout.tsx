@@ -22,6 +22,13 @@ function HeaderActions() {
   return (
     <View style={s.actions}>
       <TouchableOpacity
+        onPress={() => router.push('/financial-health/goals')}
+        style={[s.iconBtn, { backgroundColor: colors.card }]}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      >
+        <Ionicons name="flag-outline" size={19} color={colors.foreground} />
+      </TouchableOpacity>
+      <TouchableOpacity
         onPress={() => router.push('/financial-health/reports')}
         style={[s.iconBtn, { backgroundColor: colors.card }]}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -80,6 +87,7 @@ export default function FinancialHealthLayout() {
       <Stack.Screen name="reports" options={{ title: 'التقارير الشهرية' }} />
       <Stack.Screen name="settings" options={{ title: 'إعدادات الصحة المالية' }} />
       <Stack.Screen name="scan" options={{ title: 'تحليل قرار الشراء' }} />
+      <Stack.Screen name="goals" options={{ title: 'أهدافي المالية' }} />
     </Stack>
   );
 }

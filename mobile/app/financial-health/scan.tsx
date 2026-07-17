@@ -19,7 +19,7 @@ import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useColors } from '@/hooks/useColors';
 import { useFinancialHealth } from '@/context/FinancialHealthContext';
-import { ACCOUNT_ID, checkDecision, simulateDecision } from '@/lib/api';
+import { ACCOUNT_ID, checkDecision, simulateDecision, verdictLabels } from '@/lib/api';
 
 // ─── Mock AI result (what a real AI would extract) ──────────────────────────
 
@@ -244,7 +244,7 @@ function ScanningState({
       </View>
 
       {/* Progress bar */}
-      <View style={[scan.progressTrack, { backgroundColor: colors.border }]}>
+      <View style={[scan.progressTrack, { backgroundColor: colors.border, transform: [{ scaleX: -1 }] }]}>
         <Animated.View
           style={[scan.progressFill, { backgroundColor: colors.primary, width: `${progress * 100}%` as any }]}
         />
@@ -379,7 +379,13 @@ function ResultState({
   const surplusUsagePct = monthlySavings > 0
     ? Math.min(100, Math.round((r.monthlyInstallment / monthlySavings) * 100))
     : 0;
-  const recommendationText = simResult?.explanation || cashNote;
+  // Composed from the real, already-translated verdict enum instead of
+  // rendering simResult.explanation directly — that field is generated in
+  // English by the backend (twin/explain.py) and was leaking untranslated
+  // into this Arabic screen.
+  const recommendationText = simResult
+    ? (verdictLabels[simResult.verdict]?.sub ?? cashNote)
+    : cashNote;
 
   return (
     <Animated.View style={[result.container, { opacity: fadeAnim }]}>
@@ -475,15 +481,15 @@ function ResultState({
             الأثر على ميزانيتك
           </Text>
           <View style={[result.impactCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <ImpactRow label="الفائض الحالي" value={`${monthlySavings.toLocaleString('en-US')} ريال`} colors={colors} />
+            <ImpactRow label={monthlySavings < 0 ? 'العجز الحالي' : 'الفائض الحالي'} value={`${monthlySavings.toLocaleString('en-US')} ريال`} colors={colors} />
             <ImpactRow
-              label="الفائض بعد التقسيط"
+              label={surplusAfterInstallment < 0 ? 'العجز بعد التقسيط' : 'الفائض بعد التقسيط'}
               value={`${Math.round(surplusAfterInstallment).toLocaleString('en-US')} ريال`}
               colors={colors}
               highlight={!installmentFeasible}
             />
             <View style={result.barWrap}>
-              <View style={[result.barTrack, { backgroundColor: colors.border }]}>
+              <View style={[result.barTrack, { backgroundColor: colors.border, transform: [{ scaleX: -1 }] }]}>
                 <View style={[result.barFill, { width: `${surplusUsagePct}%` as any, backgroundColor: surplusUsagePct > 70 ? colors.warning : colors.primary }]} />
               </View>
               <Text style={[result.barLabel, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>

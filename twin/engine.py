@@ -10,6 +10,7 @@ import math
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 
+from .confidence import forecast_confidence
 from .features import health_score
 from .personality import classify, risk_level
 
@@ -63,6 +64,11 @@ class FinancialTwin:
     demographics: dict = field(default_factory=dict)
     goals: list = field(default_factory=list)
     forecast: dict = field(default_factory=dict)
+    # Short fixed-term obligations (e.g. BNPL) — unlike an ongoing
+    # subscription, these stop weighing on cash flow once months_remaining
+    # elapses. _forecast() reads this to taper them off instead of assuming
+    # every recurring cost lasts forever.
+    active_commitments: list = field(default_factory=list)
     last_updated: str = ""
     event_log: list = field(default_factory=list)
 
@@ -108,11 +114,22 @@ class FinancialTwin:
         self.last_updated = datetime.now().isoformat(timespec="seconds")
 
     def _forecast(self, horizon_months: int = 24) -> dict:
-        """Simple deterministic projection of balance under current behavior."""
+        """Deterministic projection of balance under current behavior.
+
+        net_cashflow already reflects every active_commitments entry (their
+        monthly_amount was added to monthly_expenses when applied) — but a
+        fixed-term commitment (e.g. BNPL) stops once months_remaining
+        elapses, so cash flow improves from that month on instead of
+        staying flat forever like an open-ended subscription would.
+        """
         balances = []
         b = self.current_balance
-        for _ in range(horizon_months):
-            b += self.net_cashflow
+        for month_idx in range(horizon_months):
+            month_cashflow = self.net_cashflow
+            for c in self.active_commitments:
+                if month_idx >= c["months_remaining"]:
+                    month_cashflow += c["monthly_amount"]
+            b += month_cashflow
             balances.append(round(b, 2))
         return {
             "horizon_months": horizon_months,
@@ -121,6 +138,10 @@ class FinancialTwin:
             "balance_in_24m": balances[23],
             "months_to_zero": next(
                 (i + 1 for i, v in enumerate(balances) if v < 0), None),
+            "confidence": forecast_confidence({
+                "months_of_history": self.months_of_history,
+                "cashflow_stability": self.cashflow_stability,
+            }),
         }
 
     # ---------- live updates ----------
@@ -138,6 +159,7 @@ class FinancialTwin:
           rent_change        {delta}
           one_off_expense    {amount}
           investment         {monthly_amount}
+          fixed_term_commitment {monthly_amount, term_months, name}
         """
         before = self.snapshot()
         etype = event["type"]
@@ -190,6 +212,18 @@ class FinancialTwin:
 
         elif etype == "investment":
             self.monthly_expenses += event["monthly_amount"]  # cash out of account
+
+        elif etype == "fixed_term_commitment":
+            self.monthly_expenses += event["monthly_amount"]
+            self.active_commitments.append({
+                "name": event.get("name", "bnpl"),
+                "monthly_amount": event["monthly_amount"],
+                "months_remaining": event["term_months"],
+            })
+            self.recurring_payments.append({
+                "amount": event["monthly_amount"],
+                "category": event.get("name", "bnpl"),
+                "months_observed": 0, "monthly": True})
 
         else:
             raise ValueError(f"unknown event type: {etype}")

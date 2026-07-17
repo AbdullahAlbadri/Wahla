@@ -66,10 +66,11 @@ SALARY_MONTHLY_TOLERANCE_DAYS = 6
 RECURRING_MIN_OCCURRENCES = 3
 EMERGENCY_FUND_MONTHS_TARGET = 6  # standard financial planning benchmark
 HEALTH_SCORE_WEIGHTS = {
-    "savings_rate": 0.30,
-    "cashflow_stability": 0.20,
-    "debt_ratio": 0.25,
-    "emergency_fund": 0.25,
+    "savings_rate": 0.25,
+    "cashflow_stability": 0.15,
+    "debt_ratio": 0.20,
+    "emergency_fund": 0.20,
+    "income_stability": 0.20,
 }
 
 # ---- 50/30/20 budget rule (Wahla - Logic.pdf) ----

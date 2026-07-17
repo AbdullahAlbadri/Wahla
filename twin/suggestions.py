@@ -19,6 +19,7 @@ from datetime import datetime, timedelta
 
 from . import config
 from .budget_rule import budget_ratios
+from .confidence import suggestion_confidence
 
 
 def _cooled_down(kind: str, history: list[dict]) -> bool:
@@ -287,6 +288,51 @@ _PRIORITY = ["idle_cash_savings", "revolving_debt", "purchase_financing",
              "card_fee_mismatch", "business_financing"]
 
 
+
+# Suggestion types that add a new voluntary monthly commitment — these are
+# the ones that should back off when liquidity is already fragile. Debt-
+# relief/idle-cash suggestions (idle_cash_savings, revolving_debt,
+# card_fee_mismatch) are protective, not additive, so they're exempt.
+_ADDITIVE_TYPES = {"purchase_financing", "business_financing"}
+
+
+def _liquidity_guard_blocks(twin_state: dict) -> bool:
+    """True when the account is too fragile for a new voluntary commitment.
+
+    Both thresholds reuse real Twin fields already computed elsewhere
+    (risk_level's own thresholds in personality.py use similar cutoffs) —
+    not a new arbitrary rule invented for this guard alone. Missing fields
+    default to "unknown, don't block" rather than 0 — a live Twin always
+    populates both, but synthetic/partial state (tests, future callers)
+    shouldn't get suppressed by a field it never set.
+    """
+    ef_months = twin_state.get("emergency_fund_months")
+    debt_ratio = twin_state.get("debt_ratio")
+    return (ef_months is not None and ef_months < 1) or (debt_ratio is not None and debt_ratio > 0.35)
+
+
+def _basis_for(c: dict, twin_state: dict, signals: dict) -> list[str]:
+    """Which real signals/thresholds fired this suggestion — surfaced instead
+    of discarded, so the UI can show *why* each recommendation exists
+    (extends the same explainability twin_diff already provides elsewhere).
+    """
+    t = c["type"]
+    if t == "idle_cash_savings":
+        basis = [f"الرصيد يتجاوز احتياجك الشهري بمقدار {c.get('sweep_amount', 0):,.0f} ريال"]
+        if not signals.get("in_savings_product", False):
+            basis.append("لا يوجد حساب توفير مفعّل حاليًا")
+        return basis
+    if t == "purchase_financing":
+        return [f"القسط المقترح ضمن هامش احتياجاتك ({twin_state.get('debt_ratio', 0)*100:.0f}% نسبة ديون حالية)"]
+    if t == "revolving_debt":
+        return [f"مصدر الرصيد المتجدد: {c.get('root_cause', 'غير محدد')}"]
+    if t == "card_fee_mismatch":
+        return ["نمط استخدام البطاقة الحالي لا يبرر رسومها السنوية"]
+    if t == "business_financing":
+        return ["إشارة نشاط تجاري + فجوة تدفق نقدي مكتشفة"]
+    return []
+
+
 def generate_suggestions(twin_state: dict, signals: dict | None = None,
                           history: list[dict] | None = None) -> list[dict]:
     """Run every section, drop cooled-down/non-firing ones, return priority-ordered.
@@ -308,6 +354,16 @@ def generate_suggestions(twin_state: dict, signals: dict | None = None,
     ]
     fired = [c for c in candidates if c is not None]
     fired = [c for c in fired if _cooled_down(c["type"], history)]
+
+    # Context awareness: don't suggest taking on a new voluntary commitment
+    # while liquidity is already critical — a refinement of ranking using
+    # signals that already exist, not new detection.
+    if _liquidity_guard_blocks(twin_state):
+        fired = [c for c in fired if c["type"] not in _ADDITIVE_TYPES]
+
+    for c in fired:
+        c["basis"] = _basis_for(c, twin_state, signals)
+        c["confidence"] = suggestion_confidence(len(c["basis"]))
 
     fired.sort(key=lambda c: _PRIORITY.index(c["type"])
                if c["type"] in _PRIORITY else len(_PRIORITY))

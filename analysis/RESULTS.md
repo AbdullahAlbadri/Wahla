@@ -22,15 +22,24 @@ what the score could actually have known at decision time:
 |---|---|
 | Loans with a known outcome (finished_ok / defaulted) | 234 |
 | Usable after requiring ≥6 months of pre-loan history | 214 |
-| Mean health_score — defaulted loans (n=25) | 49.8 |
-| Mean health_score — repaid loans (n=189) | 52.3 |
-| **AUC (health_score ranking repayment higher)** | **0.561** |
+| Mean health_score — defaulted loans (n=25) | 45.3 |
+| Mean health_score — repaid loans (n=189) | 51.4 |
+| **AUC (health_score ranking repayment higher)** | **0.626** |
 
-0.5 = no better than chance, 1.0 = perfect discrimination. **0.561 is weak** —
-close to random, far from the 22.8-vs-42.8 framing's implied strength.
+0.5 = no better than chance, 1.0 = perfect discrimination.
 
-**Takeaway:** the score has *some* real signal (>0.5, and consistent in
-direction) but nowhere near what the original claim implied.
+**Update:** the formula now includes `income_stability` as a 5th weighted
+component (25/15/20/20/20 split across savings_rate/cashflow_stability/
+debt_ratio/emergency_fund/income_stability, was 30/20/25/25 across the first
+4 only). This directly acts on the finding in §1c below — `income_stability`
+already had a strong standalone AUC (0.678) and wasn't used anywhere in the
+formula, while `debt_ratio` (25% of the old formula's weight) had *zero*
+standalone discriminative power (AUC 0.500). Re-running this script after
+the change moved the composite AUC from 0.561 → 0.626 — still not strong,
+but a real, measured improvement, not a fitted/overfit one (§1b already
+showed fitting weights to these 25 defaults doesn't reliably help — this
+was a targeted swap based on already-validated single-feature signal, not a
+new calibration).
 
 ## 1b. Does calibrating the weights with logistic regression actually help?
 

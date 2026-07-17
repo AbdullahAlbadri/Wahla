@@ -12,13 +12,14 @@ interface InsightCardProps {
   effort: 'easy' | 'medium' | 'hard';
   category: string;
   savings: number;
+  basis?: string[];
   onPress?: () => void;
 }
 
 const impactLabel: Record<string, string> = { high: 'تأثير عالٍ', medium: 'تأثير متوسط', low: 'تأثير منخفض' };
 const effortLabel: Record<string, string> = { easy: 'سهل', medium: 'متوسط', hard: 'صعب' };
 
-export function InsightCard({ title, description, impact, impactPoints, effort, category, savings, onPress }: InsightCardProps) {
+export function InsightCard({ title, description, impact, impactPoints, effort, category, savings, basis, onPress }: InsightCardProps) {
   const colors = useColors();
 
   const impactColor = impact === 'high' ? '#9AB4D6' : impact === 'medium' ? '#E07A5F' : colors.mutedForeground;
@@ -53,6 +54,20 @@ export function InsightCard({ title, description, impact, impactPoints, effort, 
       <Text style={[styles.description, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>
         {description}
       </Text>
+
+      {/* Why — real signals that triggered this suggestion, not a black box */}
+      {basis && basis.length > 0 && (
+        <View style={[styles.basisBox, { backgroundColor: colors.secondary }]}>
+          <Ionicons name="bulb-outline" size={12} color={colors.mutedForeground} />
+          <View style={{ flex: 1, gap: 2 }}>
+            {basis.map((b, i) => (
+              <Text key={i} style={[styles.basisText, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>
+                {b}
+              </Text>
+            ))}
+          </View>
+        </View>
+      )}
 
       {/* Bottom row */}
       <View style={styles.bottomRow}>
@@ -121,6 +136,18 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: 'right',
     lineHeight: 20,
+  },
+  basisBox: {
+    flexDirection: 'row-reverse',
+    gap: 6,
+    borderRadius: 10,
+    padding: 8,
+    alignItems: 'flex-start',
+  },
+  basisText: {
+    fontSize: 11,
+    textAlign: 'right',
+    lineHeight: 16,
   },
   bottomRow: {
     flexDirection: 'row-reverse',

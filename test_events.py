@@ -56,6 +56,8 @@ EVENTS = [
     {"type": "rent_change", "delta": 300},
     {"type": "one_off_expense", "amount": 2000},
     {"type": "investment", "monthly_amount": 500},
+    {"type": "fixed_term_commitment", "monthly_amount": 750,
+     "term_months": 4, "name": "bnpl_4x"},
 ]
 
 SIMULATIONS = [
@@ -128,9 +130,29 @@ def test_compare():
     check("compare: ranked by health desc", scores == sorted(scores, reverse=True))
 
 
+def test_bnpl_tapers_off():
+    print("\n== BNPL is a fixed-term commitment, not a permanent subscription ==")
+    twin = make_twin()
+    before_cashflow = twin.net_cashflow
+    twin.apply_event({"type": "fixed_term_commitment", "monthly_amount": 800,
+                      "term_months": 4, "name": "bnpl_4x"})
+    check("months 0-3: cash flow depressed by the full installment",
+          abs(twin.forecast["projected_balances"][0]
+              - (twin.current_balance + before_cashflow - 800)) < 0.01)
+    balance_month3 = twin.forecast["projected_balances"][3]
+    balance_month4 = twin.forecast["projected_balances"][4]
+    balance_month5 = twin.forecast["projected_balances"][5]
+    check("month 4 (installments finished): cash flow recovers to pre-BNPL rate",
+          abs((balance_month5 - balance_month4) - before_cashflow) < 0.01,
+          f"delta was {balance_month5 - balance_month4}, expected {before_cashflow}")
+    check("recovered growth outpaces the still-encumbered months",
+          (balance_month5 - balance_month4) > (balance_month3 - twin.forecast["projected_balances"][2]))
+
+
 if __name__ == "__main__":
     test_events()
     test_simulations()
     test_compare()
+    test_bnpl_tapers_off()
     print(f"\n{'ALL TESTS PASSED' if not FAILURES else f'{len(FAILURES)} FAILURES: {FAILURES}'}")
     sys.exit(1 if FAILURES else 0)

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery } from '@tanstack/react-query';
 import { ACCOUNT_ID, fetchBudget, fetchSuggestions, fetchTwin } from '@/lib/api';
 import { buildFinancialHealthData, type AdaptedFinancialHealth, type BudgetSegment } from '@/lib/adapter';
@@ -21,6 +22,15 @@ export interface NotificationSettings {
 }
 
 export type { BudgetSegment };
+
+const NOTIFICATIONS_STORAGE_KEY = 'wahla:notificationSettings';
+const DEFAULT_NOTIFICATIONS: NotificationSettings = {
+  budgetAlerts: true,
+  weeklyInsights: true,
+  goalReminders: false,
+  savingsOpportunities: true,
+  monthlyReport: true,
+};
 
 export interface FinancialHealthContextType extends AdaptedFinancialHealth {
   notifications: NotificationSettings;
@@ -51,18 +61,32 @@ export function FinancialHealthProvider({ children }: { children: React.ReactNod
     enabled: !!twinQuery.data,
   });
 
-  const [notifications, setNotifications] = useState<NotificationSettings>({
-    budgetAlerts: true,
-    weeklyInsights: true,
-    goalReminders: false,
-    savingsOpportunities: true,
-    monthlyReport: true,
-  });
+  const [notifications, setNotifications] = useState<NotificationSettings>(DEFAULT_NOTIFICATIONS);
   const [simulatorExtraMonthly, setSimulatorExtraMonthly] = useState(500);
   const [simulatorDebtPayment, setSimulatorDebtPayment] = useState(1000);
 
+  // Real persistence — previously local-only useState that silently reset
+  // to defaults on every reload. Loads once on mount; save is fire-and-
+  // forget (this is a local device preference, not something that needs to
+  // block the UI or be retried on failure).
+  useEffect(() => {
+    AsyncStorage.getItem(NOTIFICATIONS_STORAGE_KEY).then(raw => {
+      if (raw) {
+        try {
+          setNotifications({ ...DEFAULT_NOTIFICATIONS, ...JSON.parse(raw) });
+        } catch {
+          // corrupt stored value — keep defaults rather than crash
+        }
+      }
+    });
+  }, []);
+
   const toggleNotification = (key: keyof NotificationSettings) => {
-    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+    setNotifications(prev => {
+      const next = { ...prev, [key]: !prev[key] };
+      AsyncStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
   };
 
   const data = useMemo(() => {

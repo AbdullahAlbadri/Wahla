@@ -44,6 +44,7 @@ export interface TwinState {
     balance_in_12m: number;
     balance_in_24m: number;
     months_to_zero: number | null;
+    confidence: { score: number; label: "high" | "medium" | "low" };
   };
 }
 
@@ -55,21 +56,40 @@ export interface TwinDiffEntry {
   reasons: string[];
 }
 
+// Mirrors FinancialTwin.snapshot() in twin/engine.py exactly — the fixed
+// set of fields the backend actually puts in before/after.
+export interface TwinSnapshot {
+  monthly_income: number;
+  monthly_expenses: number;
+  net_cashflow: number;
+  savings_rate: number;
+  debt_ratio: number;
+  current_balance: number;
+  emergency_fund_months: number;
+  financial_health_score: number;
+  financial_personality: string;
+  personality_confidence: number;
+  risk_level: "low" | "medium" | "high";
+  monthly_loan_payment: number;
+}
+
 export interface SimulationResult {
   simulation: string;
   verdict: "safe" | "caution" | "risky" | "dangerous";
-  before: Record<string, any>;
-  after: Record<string, any>;
+  before: TwinSnapshot;
+  after: TwinSnapshot;
   twin_diff: TwinDiffEntry[];
   forecast_after: TwinState["forecast"];
   explanation: string;
   total_commitment: number;
   validation: { check: string; severity: string; message: string }[];
   health_report: { summary: string };
+  confidence: { score: number; label: "high" | "medium" | "low" };
 }
 
 export interface AlternativesResult {
   current_verdict: "safe" | "caution" | "risky" | "dangerous";
+  best_scenario: string;
   reduce_payment: {
     suggested_monthly: number;
     verdict: string | null;
@@ -77,6 +97,9 @@ export interface AlternativesResult {
   };
   longer_duration: { months: number; monthly: number; verdict: string; health_after: number };
   delay: { months_to_save_buffer: number | null };
+  use_liquidity: { feasible: boolean; verdict: string | null; health_after: number | null; balance_after: number | null };
+  invest_instead: { verdict: string; health_after: number; projected_value: number; projected_gain: number };
+  restructure_debt: { feasible: boolean; freed_up_monthly: number; verdict: string | null; health_after: number | null };
   review_subscriptions: { recurring_total: number; count: number };
 }
 
@@ -98,12 +121,33 @@ export interface DecisionCheckResult {
   reason: string;
 }
 
-export type SuggestionItem =
-  | { type: "idle_cash_savings"; title: string; detail: string; product: string; sweep_amount?: number; target_tier?: any }
-  | { type: "purchase_financing"; title: string; detail: string; allow: boolean; recommended?: any; fallback_tight?: any }
+// Mirrors twin/config.py's illustrative product catalogs exactly (real
+// shapes returned by twin/suggestions.py, not placeholders).
+export interface SavingsTier { max_balance: number | null; aer_min: number; aer_max: number }
+export interface CarFinancingOption { years: number; annual_rate: number; months: number; installment: number }
+export interface RealEstateFinancingOption { years: number; financing_ratio: number; installment: number }
+export interface BusinessFinancingTier {
+  size: string;
+  max_amount: number;
+  margin_min: number | null;
+  margin_max: number | null;
+  max_months: number | null;
+}
+
+export type SuggestionItem = (
+  | { type: "idle_cash_savings"; title: string; detail: string; product: string; sweep_amount?: number; target_tier?: SavingsTier }
+  | {
+      type: "purchase_financing";
+      title: string;
+      detail: string;
+      allow: boolean;
+      recommended?: CarFinancingOption | RealEstateFinancingOption;
+      fallback_tight?: (CarFinancingOption | RealEstateFinancingOption) & { note: string };
+    }
   | { type: "revolving_debt"; title: string; root_cause: string; options?: { action: string; detail: string }[] }
   | { type: "card_fee_mismatch"; title: string; detail: string; action: string }
-  | { type: "business_financing"; title: string; detail: string; tier: any };
+  | { type: "business_financing"; title: string; detail: string; tier: BusinessFinancingTier }
+) & { basis?: string[] };
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`);
@@ -123,9 +167,55 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 
 export const fetchTwin = (accountId: number) => get<TwinState>(`/api/twin/${accountId}`);
 
+export interface TwinHistoryPoint {
+  month: string; // "YYYY-MM"
+  financial_health_score: number;
+  savings_rate: number;
+  net_cashflow: number;
+  debt_ratio: number;
+  financial_personality: string;
+  personality_confidence: number;
+  monthly_income: number;
+  monthly_expenses: number;
+  category_ratios: Record<string, number>;
+}
+
+// Real recomputed monthly snapshots (see twin/features.py::historical_snapshots
+// on the backend) — empty array for accounts with too little history, never
+// a fabricated series.
+export const fetchTwinHistory = (accountId: number, months = 12) =>
+  get<TwinHistoryPoint[]>(`/api/twin/${accountId}/history?months=${months}`);
+
+export interface ConfidenceScore { score: number; label: "high" | "medium" | "low" }
+
+export interface TwinPredictions {
+  months_observed: number;
+  overspending_probability: number;
+  deficit_probability: number;
+  debt_increase_probability: number;
+  confidence: ConfidenceScore;
+}
+
+// Real empirical frequencies from the account's own historical months (see
+// twin/features.py::predict_from_history) — null when there's too little
+// history for any of them to mean anything.
+export const fetchTwinPredictions = (accountId: number) =>
+  get<TwinPredictions | null>(`/api/twin/${accountId}/predictions`);
+
+export interface DecisionPattern {
+  type: "loan_track_record" | "month_end_concentration";
+  detail: string;
+  [key: string]: unknown;
+}
+
+// Real, evidence-backed behavioral patterns (see twin/patterns.py) — never
+// a single-occurrence guess.
+export const fetchTwinPatterns = (accountId: number) =>
+  get<DecisionPattern[]>(`/api/twin/${accountId}/patterns`);
+
 export const simulateDecision = (
   accountId: number,
-  decision: { type: string; monthly: number; months: number; hasDownPayment: boolean },
+  decision: { type: string; monthly: number; months: number; hasDownPayment: boolean; down_payment?: number },
 ) => post<SimulationResult>(`/api/simulate/${accountId}`, decision);
 
 export const fetchAlternatives = (accountId: number, monthly: number, months: number) =>

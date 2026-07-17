@@ -8,12 +8,15 @@ import {
   View,
 } from 'react-native';
 import { router } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { RiyalSymbol } from '@/components/RiyalSymbol';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Path, Circle, Polyline, Defs, LinearGradient as SvgLinearGradient, RadialGradient, Stop, Line, Text as SvgText } from 'react-native-svg';
+import Svg, { Path, Circle, Polyline, Defs, RadialGradient, Stop, Line } from 'react-native-svg';
 import { useColors } from '@/hooks/useColors';
+import { ACCOUNT_ID, personalityLabels, fetchTwinPredictions, fetchTwinPatterns } from '@/lib/api';
+import { useTwinHistory, historyMonthLabel, needsWantsFromCategoryRatios } from '@/lib/history';
 import {
   useFinancialHealth,
   type Dimension,
@@ -24,6 +27,7 @@ import { ScoreRing } from '@/components/ScoreRing';
 import { MetricCard } from '@/components/MetricCard';
 import { InsightCard } from '@/components/InsightCard';
 import { SpendingBar } from '@/components/SpendingBar';
+import { TrendLineChart } from '@/components/TrendLineChart';
 
 const TAB_NAMES = ['نظرة عامة', 'التوأم الرقمي', 'السلوك', 'التوقعات', 'التوصيات'];
 
@@ -149,10 +153,12 @@ function BudgetDonut() {
                 {seg.amount.toLocaleString('en-US')}
               </Text>
 
-              {/* Ideal badge */}
-              <View style={[bd.idealBadge, { backgroundColor: over ? colors.primary + '25' : colors.accent + '18' }]}>
+              {/* Ideal badge — worded as an explicit delta vs. target, never a
+                  bare percentage, so it can't be misread as a 4th segment
+                  share when stacked under the real seg.pct%. */}
+              <View style={[bd.idealBadge, { backgroundColor: over ? colors.primary + '25' : colors.accent + '18', borderTopWidth: 1, borderTopColor: colors.border }]}>
                 <Text style={[bd.idealText, { color: over ? colors.primary : colors.accent, fontFamily: 'Inter_500Medium' }]}>
-                  {over ? `↑${seg.pct - seg.ideal}%` : `مثالي ${seg.ideal}%`}
+                  {over ? `+${seg.pct - seg.ideal}% عن الهدف` : `مثالي ${seg.ideal}%`}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -329,15 +335,15 @@ const simBanner = StyleSheet.create({
   tileLabel: { fontSize: 12, textAlign: 'right', flex: 1 },
 });
 
-// ─── Metrics Line Chart ──────────────────────────────────────────────────────
+// ─── Metrics ─────────────────────────────────────────────────────────────────
 
-const CHART_MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'];
-
-// Built from real Twin values each render — no fabricated history. `data`
-// is the real current value repeated (a flat line), since no historical
-// series exists on the backend yet; this is honest (claims no trend)
-// while keeping the existing chart math (which needs >=2 points) intact.
+// Built from real Twin values each render, expanded with a real historical
+// trend from GET /api/twin/:id/history where enough data exists. Each
+// metric gets a three-tier status — "needs work" / "good" / "excellent" —
+// so a value that clears the ideal target by a wide margin isn't flatly
+// labeled the same as one that just barely clears it.
 function useMetricDefs() {
+  const colors = useColors();
   const { savingsRate, debtRatio, budgetSegments } = useFinancialHealth();
   const needs = budgetSegments.find(s => s.id === 'needs');
   const wants = budgetSegments.find(s => s.id === 'wants');
@@ -347,19 +353,42 @@ function useMetricDefs() {
   const savingsPct = Math.round(savingsRate * 100);
   const debtPct = Math.round(debtRatio * 100);
 
+  // The three 50/30/20 shares are zero-sum (they split the same income), so
+  // a savings rate far above its 20% target isn't automatically something
+  // to celebrate — it mechanically means needs and/or wants are getting a
+  // smaller share. If needs looks starved (well under its own 50% target),
+  // that's flagged instead of being praised as "excellent".
+  const needsUnderfunded = needs ? needs.pct < needs.ideal * 0.7 : false;
+  const savingsStatus = savingsPct >= 20 && needsUnderfunded
+    ? 'مرتفع فوق الهدف، لكن على حساب الاحتياجات — تأكد أنها مغطاة بالكامل.'
+    : savingsPct >= 40
+    ? 'ممتاز — تتجاوز الهدف المثالي بفارق كبير.'
+    : savingsPct >= 20
+    ? 'جيد — أنت في المسار الصحيح.'
+    : 'أقل من الهدف المثالي — يمكن تحسينه تدريجيًا.';
+  const savingsStatusColor = savingsPct >= 20 && needsUnderfunded
+    ? colors.warning
+    : savingsPct >= 40
+    ? colors.accent
+    : savingsPct >= 20
+    ? '#9AB4D6'
+    : colors.warning;
+
   return [
     {
       id: 'savings',
       label: 'معدل الادخار',
       icon: 'wallet-outline' as const,
       current: `${savingsPct}%`,
-      positive: savingsPct >= 20,
+      positive: savingsPct >= 20 && !needsUnderfunded,
       color: '#9AB4D6',
-      data: [savingsPct, savingsPct, savingsPct, savingsPct, savingsPct, savingsPct],
       ideal: '20%',
-      description: 'معدل الادخار يقيس نسبة ما تدخره من إجمالي دخلك الشهري. كلما ارتفع هذا المعدل كلما زادت قدرتك على مواجهة الطوارئ وتحقيق أهدافك المالية بعيدة المدى.',
-      status: savingsPct >= 20 ? 'جيد — أنت في المسار الصحيح.' : 'أقل من الهدف المثالي — يمكن تحسينه تدريجيًا.',
-      tip: 'تحويل مبلغ إضافي بشكل تلقائي كل شهر يقرّبك من الهدف المثالي بثبات.',
+      description: 'معدل الادخار يقيس نسبة ما تدخره من إجمالي دخلك الشهري. كلما ارتفع هذا المعدل كلما زادت قدرتك على مواجهة الطوارئ وتحقيق أهدافك المالية بعيدة المدى. لكن لأن الاحتياجات والرغبات والادخار تقتسم نفس الدخل، ارتفاعه كثيرًا عن الهدف قد يعني أن حصة الاحتياجات تقلّصت.',
+      status: savingsStatus,
+      statusColor: savingsStatusColor,
+      tip: needsUnderfunded
+        ? 'راجع قسم "الميزانية" للتأكد أن كل احتياجاتك الأساسية مغطاة قبل تحويل مبالغ إضافية للادخار.'
+        : 'تحويل مبلغ إضافي بشكل تلقائي كل شهر يقرّبك من الهدف المثالي بثبات.',
     },
     {
       id: 'debt',
@@ -368,10 +397,14 @@ function useMetricDefs() {
       current: `${debtPct}%`,
       positive: debtPct < 30,
       color: '#9AB4D6',
-      data: [debtPct, debtPct, debtPct, debtPct, debtPct, debtPct],
       ideal: '< 30%',
       description: 'نسبة الديون هي مقارنة بين إجمالي التزاماتك الشهرية ودخلك. النسبة الصحية أقل من 30%، وكلما انخفضت كلما كانت صحتك المالية أفضل.',
-      status: debtPct < 30 ? 'جيد — ضمن النسبة الصحية.' : 'مقبول — لكن يمكن تحسينه.',
+      status: debtPct === 0
+        ? 'ممتاز — بدون أي التزامات ديون شهرية.'
+        : debtPct < 30
+        ? 'جيد — ضمن النسبة الصحية.'
+        : 'مقبول — لكن يمكن تحسينه.',
+      statusColor: debtPct === 0 ? colors.accent : debtPct < 30 ? '#9AB4D6' : colors.warning,
       tip: 'سداد قسط إضافي كلما أمكن يخفض هذه النسبة تدريجيًا.',
     },
     {
@@ -381,60 +414,37 @@ function useMetricDefs() {
       current: `${Math.round(adherence)}%`,
       positive: adherence >= 70,
       color: '#9AB4D6',
-      data: [adherence, adherence, adherence, adherence, adherence, adherence],
       ideal: '100%',
       description: 'يقيس مدى قرب توزيع إنفاقك الفعلي (احتياجات/رغبات/ادخار) من قاعدة 50/30/20 المثالية.',
-      status: adherence >= 70 ? 'جيد — توزيعك قريب من القاعدة المثالية.' : 'هناك انحراف ملحوظ عن القاعدة المثالية.',
+      status: adherence >= 90
+        ? 'ممتاز — توزيعك يطابق القاعدة المثالية تقريبًا.'
+        : adherence >= 70
+        ? 'جيد — توزيعك قريب من القاعدة المثالية.'
+        : 'هناك انحراف ملحوظ عن القاعدة المثالية.',
+      statusColor: adherence >= 90 ? colors.accent : adherence >= 70 ? '#9AB4D6' : colors.warning,
       tip: 'مراجعة قسم "الميزانية" يوضح بالضبط أي فئة تحتاج تعديلًا.',
     },
   ];
 }
-
-function buildLinePath(data: number[], w: number, h: number, pad = 16): string {
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
-  const pts = data.map((v, i) => ({
-    x: pad + (i / (data.length - 1)) * (w - pad * 2),
-    y: h - pad - ((v - min) / range) * (h - pad * 2),
-  }));
-  // smooth bezier
-  let d = `M ${pts[0].x} ${pts[0].y}`;
-  for (let i = 1; i < pts.length; i++) {
-    const cp1x = pts[i - 1].x + (pts[i].x - pts[i - 1].x) / 3;
-    const cp2x = pts[i].x - (pts[i].x - pts[i - 1].x) / 3;
-    d += ` C ${cp1x} ${pts[i - 1].y} ${cp2x} ${pts[i].y} ${pts[i].x} ${pts[i].y}`;
-  }
-  return d;
-}
-
-function buildFillPath(data: number[], w: number, h: number, pad = 16): string {
-  const line = buildLinePath(data, w, h, pad);
-  const lastX = pad + (w - pad * 2);
-  return `${line} L ${lastX} ${h - pad} L ${pad} ${h - pad} Z`;
-}
-
-const CHART_W = 340;
-const CHART_H = 130;
-const CHART_PAD = 20;
 
 function MetricsChart() {
   const colors = useColors();
   const [activeId, setActiveId] = useState('savings');
   const [expanded, setExpanded] = useState(false);
   const METRIC_DEFS = useMetricDefs();
+  const historyQuery = useTwinHistory();
 
   const metric = METRIC_DEFS.find(m => m.id === activeId)!;
-  const min = Math.min(...metric.data);
-  const max = Math.max(...metric.data);
-  const range = max - min || 1;
-  const pts = metric.data.map((v, i) => ({
-    x: CHART_PAD + (i / (metric.data.length - 1)) * (CHART_W - CHART_PAD * 2),
-    y: CHART_H - CHART_PAD - ((v - min) / range) * (CHART_H - CHART_PAD * 2),
-    v,
-  }));
-  const linePath = buildLinePath(metric.data, CHART_W, CHART_H, CHART_PAD);
-  const fillPath = buildFillPath(metric.data, CHART_W, CHART_H, CHART_PAD);
+
+  const history = historyQuery.data ?? [];
+  const trendPoints = history.map(h => {
+    const label = historyMonthLabel(h.month);
+    if (activeId === 'savings') return { label, value: h.savings_rate * 100 };
+    if (activeId === 'debt') return { label, value: h.debt_ratio * 100 };
+    const { needsPct, wantsPct } = needsWantsFromCategoryRatios(h.category_ratios);
+    const adherence = Math.max(0, Math.min(100, 100 - Math.abs(needsPct - 50) - Math.abs(wantsPct - 30)));
+    return { label, value: adherence };
+  });
 
   return (
     <View style={mc.wrapper}>
@@ -496,36 +506,14 @@ function MetricsChart() {
           </View>
         </View>
 
-        {/* SVG line chart */}
-        <Svg width={CHART_W} height={CHART_H}>
-          <Defs>
-            <SvgLinearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0%" stopColor="#E07A5F" stopOpacity={0.3} />
-              <Stop offset="100%" stopColor="#E07A5F" stopOpacity={0.0} />
-            </SvgLinearGradient>
-          </Defs>
-          {/* Fill */}
-          <Path d={fillPath} fill="url(#lineGrad)" />
-          {/* Line */}
-          <Path d={linePath} stroke="#E07A5F" strokeWidth={2.5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          {/* Dots */}
-          {pts.map((pt, i) => (
-            <Circle key={i} cx={pt.x} cy={pt.y} r={i === pts.length - 1 ? 5 : 3} fill="#E07A5F" />
-          ))}
-          {/* X labels */}
-          {pts.map((pt, i) => (
-            <SvgText
-              key={`lbl-${i}`}
-              x={pt.x}
-              y={CHART_H - 2}
-              fontSize={8}
-              fill={colors.mutedForeground}
-              textAnchor="middle"
-            >
-              {CHART_MONTHS[i].slice(0, 3)}
-            </SvgText>
-          ))}
-        </Svg>
+        {/* Real historical trend from GET /api/twin/:id/history — falls
+            back to an honest empty-state when there's too little history. */}
+        <TrendLineChart
+          points={trendPoints}
+          legend={metric.label}
+          color={metric.color}
+          formatValue={v => `${Math.round(v)}%`}
+        />
 
         {/* Tap hint */}
         <View style={mc.hintRow}>
@@ -562,8 +550,8 @@ function MetricsChart() {
               </View>
             </View>
 
-            <View style={[mc.statusBadge, { backgroundColor: metric.color + '15' }]}>
-              <Text style={[mc.statusText, { color: metric.color, fontFamily: 'Inter_500Medium' }]}>
+            <View style={[mc.statusBadge, { backgroundColor: metric.statusColor + '15' }]}>
+              <Text style={[mc.statusText, { color: metric.statusColor, fontFamily: 'Inter_500Medium' }]}>
                 {metric.status}
               </Text>
             </View>
@@ -614,9 +602,22 @@ const mc = StyleSheet.create({
 
 // ─── Featured Product Card ────────────────────────────────────────────────────
 
-function FeaturedRecommendation({ onSeeAll: _ }: { onSeeAll: () => void }) {
-  const { monthlyExpenses } = useFinancialHealth();
-  const lostMonthly = Math.round(monthlyExpenses * 0.02);
+const RECOMMENDATION_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+  'ادخار': 'wallet-outline',
+  'تمويل': 'card-outline',
+  'ديون': 'trending-down-outline',
+  'بطاقات': 'card-outline',
+  'أعمال': 'briefcase-outline',
+};
+
+function FeaturedRecommendation({ onSeeAll }: { onSeeAll: () => void }) {
+  const { recommendations } = useFinancialHealth();
+  const top = recommendations[0];
+
+  // No real suggestion applies to this account right now — showing a fake
+  // one just to fill the card would be exactly the kind of fabrication
+  // this screen is supposed to avoid, so it's hidden instead.
+  if (!top) return null;
 
   return (
     <LinearGradient
@@ -649,51 +650,55 @@ function FeaturedRecommendation({ onSeeAll: _ }: { onSeeAll: () => void }) {
       <View style={fr.tagRow}>
         <View style={fr.tag}>
           <View style={fr.tagDot} />
-          <Text style={[fr.tagText, { fontFamily: 'Inter_700Bold' }]}>فرصة ضائعة</Text>
+          <Text style={[fr.tagText, { fontFamily: 'Inter_700Bold' }]}>توصية مخصصة لك</Text>
         </View>
       </View>
 
-      {/* ── الرقم الكبير ── */}
-      <View style={fr.numberBlock}>
-        <Text style={[fr.numberSub, { fontFamily: 'Inter_400Regular' }]}>كل شهر تخسر دون أن تشعر</Text>
-        <View style={fr.numberRow}>
-          <Text style={[fr.numberBig, { fontFamily: 'Inter_700Bold' }]}>
-            {lostMonthly.toLocaleString('en-US')}
-          </Text>
-          <RiyalSymbol size={18} color="#ffffff66" />
-        </View>
-      </View>
+      {/* ── الرقم الكبير — فقط لو فيه مبلغ حقيقي من التوصية ── */}
+      {top.savings > 0 && (
+        <>
+          <View style={fr.numberBlock}>
+            <Text style={[fr.numberSub, { fontFamily: 'Inter_400Regular' }]}>مبلغ يمكنك تحويله للتوفير</Text>
+            <View style={fr.numberRow}>
+              <Text style={[fr.numberBig, { fontFamily: 'Inter_700Bold' }]}>
+                {Math.round(top.savings).toLocaleString('en-US')}
+              </Text>
+              <RiyalSymbol size={18} color="#ffffff66" />
+            </View>
+          </View>
 
-      {/* ── Gradient divider ── */}
-      <LinearGradient
-        colors={['#E07A5F55', '#E07A5F00']}
-        start={{ x: 1, y: 0 }}
-        end={{ x: 0, y: 0 }}
-        style={fr.divider}
-      />
+          {/* ── Gradient divider ── */}
+          <LinearGradient
+            colors={['#E07A5F55', '#E07A5F00']}
+            start={{ x: 1, y: 0 }}
+            end={{ x: 0, y: 0 }}
+            style={fr.divider}
+          />
+        </>
+      )}
 
-      {/* ── Body ── */}
+      {/* ── Body — شرح التوصية الحقيقية من محرك الاقتراحات ── */}
       <Text style={[fr.body, { fontFamily: 'Inter_400Regular' }]}>
-        إنفاقك بالمدى لا يعود عليك بشيء — وكان يمكن أن يفعل.
+        {top.description}
       </Text>
 
       {/* ── Solution box ── */}
       <View style={fr.solutionBox}>
         <View style={fr.solutionTexts}>
-          <Text style={[fr.solutionName, { fontFamily: 'Inter_700Bold' }]}>بطاقة علينا المميزة</Text>
+          <Text style={[fr.solutionName, { fontFamily: 'Inter_700Bold' }]}>{top.title}</Text>
           <Text style={[fr.solutionDesc, { fontFamily: 'Inter_400Regular' }]}>
-            تحوّل إنفاقك إلى مبلغ تسترده
+            {top.category}
           </Text>
         </View>
         <View style={fr.productIcon}>
-          <Ionicons name="card-outline" size={20} color="#E07A5F" />
+          <Ionicons name={RECOMMENDATION_ICONS[top.category] ?? 'bulb-outline'} size={20} color="#E07A5F" />
         </View>
       </View>
 
-      {/* ── CTA ── */}
-      <TouchableOpacity activeOpacity={0.85} style={fr.ctaBtn}>
+      {/* ── CTA — يفتح تبويب التوصيات الكامل ── */}
+      <TouchableOpacity activeOpacity={0.85} style={fr.ctaBtn} onPress={onSeeAll}>
         <Ionicons name="chevron-back-outline" size={14} color="#112236" />
-        <Text style={[fr.ctaText, { fontFamily: 'Inter_700Bold' }]}>أصدر بطاقتك الآن</Text>
+        <Text style={[fr.ctaText, { fontFamily: 'Inter_700Bold' }]}>عرض كل التوصيات</Text>
       </TouchableOpacity>
     </LinearGradient>
   );
@@ -794,7 +799,7 @@ function DimensionRow({ dim, colors }: { dim: Dimension; colors: ReturnType<type
           {dim.label}
         </Text>
       </View>
-      <View style={[tabStyles.dimTrack, { backgroundColor: colors.border }]}>
+      <View style={[tabStyles.dimTrack, { backgroundColor: colors.border, transform: [{ scaleX: -1 }] }]}>
         <View
           style={[
             tabStyles.dimFill,
@@ -809,10 +814,18 @@ function DimensionRow({ dim, colors }: { dim: Dimension; colors: ReturnType<type
 function DigitalTwinTab() {
   const colors = useColors();
   const { dimensions, score, scoreLabel, archetypeName, archetypeDescription, personalityConfidence } = useFinancialHealth();
+  const historyQuery = useTwinHistory();
 
   const sorted = [...dimensions].sort((a, b) => b.value - a.value);
   const strengths = sorted.slice(0, 2);
   const opportunities = sorted.slice(-2);
+
+  // Real evolution — the earliest and latest entries in the history are
+  // both genuine classify() runs on genuine historical states (see
+  // twin/features.py::historical_snapshots), not a fabricated timeline.
+  const history = historyQuery.data ?? [];
+  const earliestPersonality = history.length >= 2 ? history[0].financial_personality : null;
+  const personalityChanged = earliestPersonality && earliestPersonality !== history[history.length - 1]?.financial_personality;
 
   return (
     <View style={tabStyles.section}>
@@ -830,6 +843,16 @@ function DigitalTwinTab() {
         <Text style={[tabStyles.archetypeDesc, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>
           {archetypeDescription}
         </Text>
+        {earliestPersonality && (
+          <View style={tabStyles.evolutionRow}>
+            <Ionicons name={personalityChanged ? 'trending-up-outline' : 'checkmark-done-outline'} size={12} color={colors.mutedForeground} />
+            <Text style={[tabStyles.evolutionText, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>
+              {personalityChanged
+                ? `كنت "${personalityLabels[earliestPersonality] ?? earliestPersonality}" قبل ${history.length} أشهر`
+                : `نمطك ثابت منذ ${history.length} أشهر على الأقل`}
+            </Text>
+          </View>
+        )}
         <View style={[tabStyles.scorePill, { backgroundColor: colors.primary }]}>
           <Text style={[tabStyles.scorePillText, { fontFamily: 'Inter_700Bold' }]}>{score}/100 – {scoreLabel}</Text>
         </View>
@@ -889,6 +912,11 @@ function DigitalTwinTab() {
 function BehaviorTab() {
   const colors = useColors();
   const { spendingCategories, monthlyExpenses, monthsOfHistory } = useFinancialHealth();
+  const historyQuery = useTwinHistory();
+  const spendingTrendPoints = (historyQuery.data ?? []).map(h => ({
+    label: historyMonthLabel(h.month),
+    value: h.monthly_expenses,
+  }));
 
   return (
     <View style={tabStyles.section}>
@@ -924,17 +952,24 @@ function BehaviorTab() {
           />
         ))}
       </View>
+      <View style={tabStyles.categoryNoteRow}>
+        <Ionicons name="information-circle-outline" size={13} color={colors.mutedForeground} />
+        <Text style={[tabStyles.categoryNoteText, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>
+          التصنيف مبني على نوع العملية البنكية الفعلي، وليس على اسم المتجر — بيانات الحساب لا تتضمن نص وصف التاجر.
+        </Text>
+      </View>
 
-      {/* Monthly trend — no historical series exists on the backend yet;
-          honest empty-state instead of a fabricated chart. */}
+      {/* Monthly trend — real per-month spend from GET /api/twin/:id/history */}
       <Text style={[tabStyles.sectionTitle, { color: colors.foreground, fontFamily: 'Inter_600SemiBold' }]}>
         اتجاه الإنفاق الشهري
       </Text>
-      <View style={[tabStyles.trendCard, { backgroundColor: colors.card, borderColor: colors.border, alignItems: 'center', gap: 8, paddingVertical: 24 }]}>
-        <Ionicons name="stats-chart-outline" size={24} color={colors.mutedForeground} />
-        <Text style={[tabStyles.summaryChange, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular', textAlign: 'center' }]}>
-          سيتوفر عرض الاتجاه الشهري عند تجميع بيانات كافية عبر الوقت
-        </Text>
+      <View style={[tabStyles.trendCard, { backgroundColor: colors.card, borderColor: colors.border, paddingVertical: 16 }]}>
+        <TrendLineChart
+          points={spendingTrendPoints}
+          legend="المصروفات الشهرية"
+          color="#E07A5F"
+          formatValue={v => `${Math.round(v).toLocaleString('en-US')} ريال`}
+        />
       </View>
     </View>
   );
@@ -951,9 +986,22 @@ const MONTH_NAMES_AR = [
 // (GET /api/twin/:id → forecast.projected_balances). The backend does not
 // compute a per-month "score" or "confidence", and has no concept of
 // user-defined savings goals or milestones — so none of those are shown.
+const CONFIDENCE_LABEL_AR: Record<string, string> = { high: 'ثقة عالية', medium: 'ثقة متوسطة', low: 'ثقة منخفضة' };
+const CONFIDENCE_COLOR: Record<string, string> = { high: '#4CAF8C', medium: '#9AB4D6', low: '#F4A836' };
+
 function PredictionsTab() {
   const colors = useColors();
   const { forecast, currentBalance, lastUpdated } = useFinancialHealth();
+  const predictionsQuery = useQuery({
+    queryKey: ['twin-predictions', ACCOUNT_ID],
+    queryFn: () => fetchTwinPredictions(ACCOUNT_ID),
+    staleTime: 60_000,
+  });
+  const patternsQuery = useQuery({
+    queryKey: ['twin-patterns', ACCOUNT_ID],
+    queryFn: () => fetchTwinPatterns(ACCOUNT_ID),
+    staleTime: 60_000,
+  });
 
   const anchor = new Date(lastUpdated);
   const nextMonths = forecast.projected_balances.slice(0, 3).map((balance, i) => {
@@ -1045,6 +1093,59 @@ function PredictionsTab() {
             : `عند استمرار النمط الحالي، رصيدك متوقع أن يصل للصفر خلال ${forecast.months_to_zero} شهرًا.`}
         </Text>
       </View>
+
+      {/* Real empirical probabilities — frequency counts over the account's
+          own historical months, not a fitted model (GET /api/twin/:id/predictions) */}
+      {predictionsQuery.data && (
+        <>
+          <View style={tabStyles.predictionsHeaderRow}>
+            <View style={[tabStyles.confPill, { backgroundColor: CONFIDENCE_COLOR[predictionsQuery.data.confidence.label] + '22' }]}>
+              <Text style={[tabStyles.confPillText, { color: CONFIDENCE_COLOR[predictionsQuery.data.confidence.label], fontFamily: 'Inter_500Medium' }]}>
+                {CONFIDENCE_LABEL_AR[predictionsQuery.data.confidence.label]}
+              </Text>
+            </View>
+            <Text style={[tabStyles.sectionTitle, { color: colors.foreground, fontFamily: 'Inter_600SemiBold' }]}>
+              احتمالات مبنية على سلوكك الفعلي
+            </Text>
+          </View>
+          <View style={[tabStyles.probRow]}>
+            <ProbBox label="تجاوز 50/30/20" value={predictionsQuery.data.overspending_probability} colors={colors} />
+            <ProbBox label="شهر بعجز" value={predictionsQuery.data.deficit_probability} colors={colors} />
+            <ProbBox label="ارتفاع الديون" value={predictionsQuery.data.debt_increase_probability} colors={colors} />
+          </View>
+          <Text style={[tabStyles.probFootnote, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>
+            نسبة الأشهر الفعلية (من أصل {predictionsQuery.data.months_observed}) التي انطبق عليها كل مؤشر — وليست تنبؤًا احتماليًا مولّدًا بنموذج.
+          </Text>
+        </>
+      )}
+
+      {/* Real, evidence-backed behavioral patterns (GET /api/twin/:id/patterns) */}
+      {patternsQuery.data && patternsQuery.data.length > 0 && (
+        <>
+          <Text style={[tabStyles.sectionTitle, { color: colors.foreground, fontFamily: 'Inter_600SemiBold' }]}>
+            أنماط سلوكية ملحوظة
+          </Text>
+          {patternsQuery.data.map((p, i) => (
+            <View key={i} style={[tabStyles.trendCard, { backgroundColor: colors.card, borderColor: colors.border, flexDirection: 'row-reverse', alignItems: 'center', gap: 10 }]}>
+              <Ionicons name="analytics-outline" size={18} color={colors.primary} />
+              <Text style={[tabStyles.summaryChange, { color: colors.foreground, fontFamily: 'Inter_400Regular', flex: 1, textAlign: 'right' }]}>
+                {p.detail}
+              </Text>
+            </View>
+          ))}
+        </>
+      )}
+    </View>
+  );
+}
+
+function ProbBox({ label, value, colors }: { label: string; value: number; colors: ReturnType<typeof useColors> }) {
+  const pct = Math.round(value * 100);
+  const color = pct >= 60 ? colors.destructive : pct >= 30 ? colors.warning : colors.accent;
+  return (
+    <View style={[tabStyles.probBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <Text style={[tabStyles.probVal, { color, fontFamily: 'Inter_700Bold' }]}>{pct}%</Text>
+      <Text style={[tabStyles.probLabel, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>{label}</Text>
     </View>
   );
 }
@@ -1112,7 +1213,7 @@ export default function FinancialHealthScreen() {
               style={[styles.headerBtn, { backgroundColor: colors.card }]}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Ionicons name="chevron-forward" size={19} color={colors.foreground} />
+              <Ionicons name="chevron-back" size={19} color={colors.foreground} />
             </TouchableOpacity>
             <View style={[styles.headerIconBadge, { backgroundColor: colors.primary + '22' }]}>
               <Ionicons name="heart-outline" size={15} color={colors.primary} />
@@ -1124,6 +1225,13 @@ export default function FinancialHealthScreen() {
 
           {/* Action buttons */}
           <View style={styles.headerActions}>
+            <TouchableOpacity
+              onPress={() => router.push('/financial-health/goals')}
+              style={[styles.headerBtn, { backgroundColor: colors.card }]}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="flag-outline" size={19} color={colors.foreground} />
+            </TouchableOpacity>
             <TouchableOpacity
               onPress={() => router.push('/financial-health/reports')}
               style={[styles.headerBtn, { backgroundColor: colors.card }]}
@@ -1263,6 +1371,8 @@ const tabStyles = StyleSheet.create({
   archetypeLabel: { fontSize: 12, textAlign: 'right' },
   archetypeName: { fontSize: 22, textAlign: 'right' },
   archetypeDesc: { fontSize: 13, textAlign: 'right', lineHeight: 20 },
+  evolutionRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 5 },
+  evolutionText: { fontSize: 11 },
   scorePill: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, alignSelf: 'flex-end' },
   scorePillText: { color: '#FFFFFF', fontSize: 12 },
   // Dimensions
@@ -1285,6 +1395,8 @@ const tabStyles = StyleSheet.create({
   summaryChangeRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
   summaryChange: { fontSize: 12 },
   categoriesCard: { borderRadius: 14, borderWidth: 1, padding: 16, gap: 16 },
+  categoryNoteRow: { flexDirection: 'row-reverse', alignItems: 'flex-start', gap: 5, paddingHorizontal: 4 },
+  categoryNoteText: { flex: 1, fontSize: 10, textAlign: 'right', lineHeight: 15 },
   trendCard: { borderRadius: 14, borderWidth: 1, padding: 16 },
   trendBarsRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 8 },
   monthBarWrap: { flex: 1, alignItems: 'center', gap: 4 },
@@ -1301,6 +1413,14 @@ const tabStyles = StyleSheet.create({
   forecastItem: { flex: 1, alignItems: 'center', gap: 4 },
   forecastVal: { fontSize: 18 },
   forecastLabel: { fontSize: 11, textAlign: 'center' },
+  predictionsHeaderRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
+  confPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
+  confPillText: { fontSize: 11 },
+  probRow: { flexDirection: 'row-reverse', gap: 8 },
+  probBox: { flex: 1, borderRadius: 12, borderWidth: 1, padding: 12, alignItems: 'center', gap: 4 },
+  probVal: { fontSize: 20 },
+  probLabel: { fontSize: 11, textAlign: 'center' },
+  probFootnote: { fontSize: 10, textAlign: 'right', lineHeight: 15 },
   forecastDivider: { width: 1, height: 40 },
   yearCard: { borderRadius: 14, borderWidth: 1, padding: 16, gap: 8 },
   yearLabel: { fontSize: 12, textAlign: 'right' },

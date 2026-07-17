@@ -155,12 +155,18 @@ function buildRecommendations(suggestions: SuggestionItem[]) {
   return suggestions.map((s, i) => ({
     id: String(i + 1),
     title: s.title,
-    description: "detail" in s ? s.detail : "",
+    // revolving_debt has no top-level `detail`, its explanation is under
+    // `root_cause` — fall back to it so the card never renders blank.
+    description: "detail" in s ? s.detail : "root_cause" in s ? s.root_cause : "",
     impact: "medium" as const,
     impactPoints: 0,
     effort: "easy" as const,
     category: suggestionTypeLabel[s.type] ?? s.type,
-    savings: s.type === "idle_cash_savings" ? (s as any).sweep_amount ?? 0 : 0,
+    savings: s.type === "idle_cash_savings" ? s.sweep_amount ?? 0 : 0,
+    // Real signals that triggered this suggestion (twin/suggestions.py) —
+    // surfaced so the UI can answer "why am I seeing this" instead of
+    // presenting a black-box recommendation.
+    basis: s.basis ?? [],
   }));
 }
 

@@ -191,6 +191,47 @@ def test_never_does():
               o["type"] != "business_financing" for o in generate_suggestions(_state())))
 
 
+def test_liquidity_guard():
+    print("\n== liquidity guard: no new voluntary commitment when fragile ==")
+    car_signal = {"pending_need_purchase": {"type": "car", "price": 20000}}
+
+    # Field genuinely absent (e.g. a partial/synthetic state) must NOT be
+    # treated as "critically low" — regression guard for a real bug caught
+    # during development, where .get(key, 0) silently blocked every
+    # suggestion for any state that simply never set these fields.
+    unset = _state(monthly_income=15000, monthly_expenses=6000,
+                    category_ratios={"household_ratio": 0.40, "uncategorized_ratio": 0.60})
+    fired = generate_suggestions(unset, signals=car_signal)
+    check("missing emergency_fund_months/debt_ratio does not suppress",
+          any(o["type"] == "purchase_financing" for o in fired), str(fired))
+
+    # Genuinely critical liquidity (field explicitly set low) DOES suppress.
+    fragile = _state(monthly_income=15000, monthly_expenses=6000,
+                      category_ratios={"household_ratio": 0.40, "uncategorized_ratio": 0.60},
+                      emergency_fund_months=0.5)
+    fired = generate_suggestions(fragile, signals=car_signal)
+    check("emergency_fund_months < 1 suppresses purchase_financing",
+          not any(o["type"] == "purchase_financing" for o in fired), str(fired))
+
+    # Protective suggestions (idle cash) are exempt from the guard even when
+    # liquidity looks fragile — they reduce risk, they don't add to it.
+    fragile_with_idle_cash = _state(
+        monthly_income=10000, monthly_expenses=6000, avg_monthly_balance=20000,
+        emergency_fund_months=0.5)
+    fired = generate_suggestions(fragile_with_idle_cash, signals={"in_savings_product": False})
+    check("idle_cash_savings still fires despite the guard",
+          any(o["type"] == "idle_cash_savings" for o in fired), str(fired))
+
+
+def test_basis_field():
+    print("\n== every fired suggestion carries a real basis ==")
+    fired = generate_suggestions(
+        _state(avg_monthly_balance=20000), signals={"in_savings_product": False})
+    hit = next((o for o in fired if o["type"] == "idle_cash_savings"), None)
+    check("idle_cash_savings has a non-empty basis",
+          hit is not None and isinstance(hit.get("basis"), list) and len(hit["basis"]) > 0, str(hit))
+
+
 if __name__ == "__main__":
     test_budget_ratios()
     test_decision_check()
@@ -200,5 +241,7 @@ if __name__ == "__main__":
     test_revolving_debt_suggestion()
     test_priority_and_cooldown()
     test_never_does()
+    test_liquidity_guard()
+    test_basis_field()
     print(f"\n{'ALL TESTS PASSED' if not FAILURES else f'{len(FAILURES)} FAILURES: {FAILURES}'}")
     sys.exit(1 if FAILURES else 0)

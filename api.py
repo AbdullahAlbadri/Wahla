@@ -20,10 +20,12 @@ from pydantic import BaseModel
 
 from twin import config
 from twin.budget_rule import budget_ratios, decision_check, monthly_adjustment
-from twin.data_loader import load_live_loans, load_live_transactions
+from twin.data_loader import load_all, load_live_loans, load_live_transactions
 from twin.engine import FinancialTwin
-from twin.features import build_account_features
+from twin.confidence import data_confidence, label as confidence_label
+from twin.features import build_account_features, historical_snapshots, predict_from_history
 from twin.memory import build_timeline
+from twin.patterns import detect_patterns
 from twin.simulation import SimulationEngine
 from twin.suggestions import generate_suggestions
 
@@ -44,6 +46,14 @@ DEMO_ACCOUNTS = [
 ]
 
 _TWINS: dict[int, FinancialTwin] = {}
+# Full batch transaction/loan history, loaded once at startup — needed for
+# GET /api/twin/{id}/history to recompute real historical snapshots (see
+# twin/features.py::historical_snapshots). Only covers the Berka batch
+# accounts; live-connected accounts (POST /api/connect) have no entry here
+# and the history endpoint returns an honest empty list for them, same
+# spirit as every other "not enough data yet" empty-state in this app.
+_BATCH_TX = None
+_BATCH_LOANS = None
 
 
 def _load_twins():
@@ -56,7 +66,16 @@ def _load_twins():
     print(f"loaded {len(_TWINS)} twins")
 
 
+def _load_batch_history():
+    global _BATCH_TX, _BATCH_LOANS
+    data = load_all()
+    _BATCH_TX = data["transactions"]
+    _BATCH_LOANS = data["loans"]
+    print(f"loaded batch history: {len(_BATCH_TX)} transactions, {len(_BATCH_LOANS)} loans")
+
+
 _load_twins()
+_load_batch_history()
 
 
 def _twin(account_id: int) -> FinancialTwin:
@@ -72,19 +91,29 @@ class Decision(BaseModel):
     monthly: float
     months: int
     hasDownPayment: bool = False
+    down_payment: float = 0
 
 
 def _decision_events(d: Decision) -> list[dict]:
     """Map a Wahla decision onto Twin events.
 
-    All four decision types are a recurring monthly commitment; a down
-    payment adds a one-off expense of one installment up front.
+    BNPL is a short fixed-term commitment — it stops weighing on cash flow
+    after `months` installments (see fixed_term_commitment in engine.py).
+    loan/installment/subscription are ongoing recurring costs with no
+    built-in end date in this model, so they stay on new_subscription.
+    A down payment (when present) adds a one-off expense of its own real
+    amount up front — previously this silently reused the monthly
+    installment amount instead of the actual down payment.
     """
     events: list[dict] = []
-    if d.hasDownPayment:
-        events.append({"type": "one_off_expense", "amount": d.monthly})
-    events.append({"type": "new_subscription", "monthly_amount": d.monthly,
-                   "name": d.type})
+    if d.hasDownPayment and d.down_payment > 0:
+        events.append({"type": "one_off_expense", "amount": d.down_payment})
+    if d.type == "bnpl":
+        events.append({"type": "fixed_term_commitment", "monthly_amount": d.monthly,
+                       "term_months": d.months, "name": d.type})
+    else:
+        events.append({"type": "new_subscription", "monthly_amount": d.monthly,
+                       "name": d.type})
     return events
 
 
@@ -154,6 +183,61 @@ def get_twin(account_id: int):
     return _twin(account_id).to_dict()
 
 
+@app.get("/api/twin/{account_id}/history")
+def get_twin_history(account_id: int, months: int = 12):
+    """Real historical monthly snapshots — each one recomputed from only the
+    transactions that existed by that month, not fabricated. Empty list for
+    accounts with no batch history (e.g. a live-connected account) or too
+    little history for even one honest cutoff.
+    """
+    _twin(account_id)  # 404 if the account doesn't exist at all
+    if _BATCH_TX is None or _BATCH_TX.empty:
+        return []
+    acct_tx = _BATCH_TX[_BATCH_TX["account_id"] == account_id]
+    if acct_tx.empty:
+        return []
+    acct_loans = _BATCH_LOANS[_BATCH_LOANS["account_id"] == account_id]
+    return historical_snapshots(acct_tx, acct_loans, max_months=months)
+
+
+@app.get("/api/twin/{account_id}/predictions")
+def get_twin_predictions(account_id: int):
+    """Real empirical probabilities (twin/features.py::predict_from_history)
+    — each one a frequency count over the account's own historical months,
+    never a fitted/black-box model. None when there's too little history.
+    """
+    _twin(account_id)
+    if _BATCH_TX is None or _BATCH_TX.empty:
+        return None
+    acct_tx = _BATCH_TX[_BATCH_TX["account_id"] == account_id]
+    if acct_tx.empty:
+        return None
+    acct_loans = _BATCH_LOANS[_BATCH_LOANS["account_id"] == account_id]
+    snapshots = historical_snapshots(acct_tx, acct_loans, max_months=24)
+    prediction = predict_from_history(snapshots)
+    if prediction is None:
+        return None
+    dc = data_confidence(prediction["months_observed"])
+    prediction["confidence"] = {"score": dc, "label": confidence_label(dc)}
+    return prediction
+
+
+@app.get("/api/twin/{account_id}/patterns")
+def get_twin_patterns(account_id: int):
+    """Real, evidence-backed behavioral patterns (twin/patterns.py) — never
+    a single-occurrence guess. Empty list for accounts with no batch
+    history or not enough evidence for any pattern.
+    """
+    _twin(account_id)
+    if _BATCH_TX is None or _BATCH_TX.empty:
+        return []
+    acct_tx = _BATCH_TX[_BATCH_TX["account_id"] == account_id]
+    if acct_tx.empty:
+        return []
+    acct_loans = _BATCH_LOANS[_BATCH_LOANS["account_id"] == account_id]
+    return detect_patterns(acct_tx, acct_loans)
+
+
 @app.post("/api/simulate/{account_id}")
 def simulate(account_id: int, d: Decision):
     twin = _twin(account_id)
@@ -165,7 +249,16 @@ def simulate(account_id: int, d: Decision):
 
 @app.get("/api/alternatives/{account_id}")
 def alternatives(account_id: int, monthly: float, months: int):
-    """For each Wahla alternative card, quantify the improvement."""
+    """For each Wahla alternative card, quantify the improvement.
+
+    Beyond the original 4 fixed scenarios, this wires in previously-dormant
+    SimulationEngine capability (invest_monthly, payoff_debt) so the set of
+    alternatives responds to the account's actual situation instead of
+    always being the same 4 regardless of context — the real fix for
+    "everything is just reduce payment or reduce duration". Each new
+    scenario is only surfaced when it's genuinely viable for this account
+    (e.g. "use liquidity" only if the balance can actually cover it).
+    """
     twin = _twin(account_id)
     sim = SimulationEngine(twin)
 
@@ -178,8 +271,56 @@ def alternatives(account_id: int, monthly: float, months: int):
     longer_monthly = round(monthly * months / 18, 2)
     longer = sim.new_subscription(longer_monthly, "longer_term")
 
+    ranked = [("الوضع الحالي", base)]
+    if reduced:
+        ranked.append(("تقليل القسط", reduced))
+    ranked.append(("تمديد المدة", longer))
+
+    total_commitment = round(monthly * months, 2)
+    use_liquidity = None
+    if twin.current_balance >= total_commitment > 0:
+        paid_cash = sim.buy_item(total_commitment, "paid_in_full")
+        use_liquidity = {
+            "feasible": True,
+            "verdict": paid_cash["verdict"],
+            "health_after": paid_cash["after"]["financial_health_score"],
+            "balance_after": paid_cash["after"]["current_balance"],
+        }
+        ranked.append(("استخدام السيولة الحالية", paid_cash))
+    else:
+        use_liquidity = {"feasible": False, "verdict": None, "health_after": None, "balance_after": None}
+
+    # 7% assumed annual return — a standard financial-planning benchmark
+    # (same spirit as the existing EMERGENCY_FUND_MONTHS_TARGET constant),
+    # not a claim about this user's actual investment behavior.
+    invested = sim.invest_monthly(monthly, annual_return=0.07, horizon_months=months)
+    invest_instead = {
+        "verdict": invested["verdict"],
+        "health_after": invested["after"]["financial_health_score"],
+        "projected_value": invested["investment_projection"]["projected_value"],
+        "projected_gain": invested["investment_projection"]["projected_gain"],
+    }
+    ranked.append(("استثمار المبلغ بدل الالتزام به", invested))
+
+    restructure_debt = None
+    if twin.monthly_loan_payment > 0:
+        payoff = sim.payoff_debt(twin.monthly_loan_payment)
+        restructure_debt = {
+            "feasible": True,
+            "freed_up_monthly": twin.monthly_loan_payment,
+            "verdict": payoff["verdict"],
+            "health_after": payoff["after"]["financial_health_score"],
+        }
+        ranked.append(("إعادة هيكلة الالتزامات الحالية", payoff))
+    else:
+        restructure_debt = {"feasible": False, "freed_up_monthly": 0, "verdict": None, "health_after": None}
+
+    ranked.sort(key=lambda pair: pair[1]["after"]["financial_health_score"], reverse=True)
+    best_scenario = ranked[0][0]
+
     return {
         "current_verdict": base["verdict"],
+        "best_scenario": best_scenario,
         "reduce_payment": {
             "suggested_monthly": suggested,
             "verdict": reduced["verdict"] if reduced else None,
@@ -198,6 +339,9 @@ def alternatives(account_id: int, monthly: float, months: int):
                     / twin.net_cashflow)
             ),
         },
+        "use_liquidity": use_liquidity,
+        "invest_instead": invest_instead,
+        "restructure_debt": restructure_debt,
         "review_subscriptions": {
             "recurring_total": round(sum(
                 p["amount"] for p in twin.recurring_payments

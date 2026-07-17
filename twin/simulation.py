@@ -11,6 +11,7 @@ import copy
 
 from dataclasses import asdict
 
+from .confidence import verdict_confidence
 from .diff import twin_diff
 from .engine import FinancialTwin
 from .explain import explain, before_after_card
@@ -62,6 +63,7 @@ class SimulationEngine:
         }
         result["explanation"] = explain(result)
         result["before_after_card"] = before_after_card(result)
+        result["confidence"] = verdict_confidence(asdict(sim), after)
         return result
 
     # ---- supported what-if scenarios ----
@@ -72,11 +74,16 @@ class SimulationEngine:
                          f"buy_{label}_{price:.0f}")
 
     def buy_with_bnpl(self, price: float, installments: int = 4) -> dict:
-        """BNPL: split into equal monthly installments, no interest."""
+        """BNPL: split into equal fixed-term installments, no interest.
+
+        Unlike an ongoing subscription, this stops weighing on cash flow
+        once `installments` months have passed — see fixed_term_commitment
+        in engine.py.
+        """
         monthly = price / installments
         return self._run(
-            [{"type": "new_subscription", "monthly_amount": monthly,
-              "name": f"bnpl_{installments}x"}],
+            [{"type": "fixed_term_commitment", "monthly_amount": monthly,
+              "term_months": installments, "name": f"bnpl_{installments}x"}],
             f"bnpl_{price:.0f}_over_{installments}m")
 
     def take_loan(self, principal: float, duration_months: int,
