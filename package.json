@@ -7,12 +7,9 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "remix vite:build",
-    "dev": "remix vite:dev",
-    "start": "remix-serve ./build/index.js",
-    "typecheck": "tsc",
     "dev:api": "python3 -m uvicorn api:app --port 8000 --reload"
-  },
+  }
+},
   "dependencies": {
     "@remix-run/node": "^2.x.x",
     "@remix-run/react": "^2.x.x",
