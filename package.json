@@ -4,15 +4,23 @@
   "description": "Financial Digital Twin - Open Banking Hackathon",
   "private": true,
   "engines": {
-    "node": ">=18",
-    "python": "3.12"
+    "node": ">=18"
   },
   "scripts": {
+    "build": "remix vite:build",
+    "dev": "remix vite:dev",
+    "start": "remix-serve ./build/index.js",
+    "typecheck": "tsc",
     "dev:api": "python3 -m uvicorn api:app --port 8000 --reload"
+  },
+  "dependencies": {
+    "@remix-run/node": "^2.x.x",
+    "@remix-run/react": "^2.x.x",
+    "isbot": "^3.8.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.x.x",
-    "@remix-run/node": "^2.x.x",
-    "@remix-run/react": "^2.x.x"
+    "typescript": "^5.1.0",
+    "vite": "^5.0.0"
   }
 }
