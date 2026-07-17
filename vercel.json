@@ -1,17 +1,9 @@
 {
   "version": 2,
-  "buildCommand": "pip install -r requirements.txt",
+  "buildCommand": "cd mobile && npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": "mobile/dist",
   "env": {
-    "PYTHONUNBUFFERED": "1"
-  },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "api/index.py"
-    }
-  ]
+    "VITE_API_URL": "@vite_api_url"
+  }
 }
