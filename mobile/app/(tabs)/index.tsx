@@ -53,19 +53,6 @@ export default function HomeScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* ─── Header ─── */}
       <View style={[styles.header, { paddingTop: topPad + 10, backgroundColor: colors.background }]}>
-        {/* Left: action icons */}
-        <View style={styles.headerIcons}>
-          <TouchableOpacity style={[styles.iconBtn, { backgroundColor: colors.card }]}>
-            <Ionicons name="exit-outline" size={19} color={colors.mutedForeground} />
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.iconBtn, { backgroundColor: colors.card }]}>
-            <Ionicons name="notifications-outline" size={19} color={colors.mutedForeground} />
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.iconBtn, { backgroundColor: colors.card }]}>
-            <Ionicons name="pencil-outline" size={19} color={colors.mutedForeground} />
-          </TouchableOpacity>
-        </View>
-
         {/* Right: greeting + avatar — no real user/name field exists on the
             backend (Twin has no name, only anonymized demographics), so
             this stays a generic greeting rather than a fabricated name. */}
@@ -78,6 +65,19 @@ export default function HomeScreen() {
           <View style={[styles.avatar, { backgroundColor: colors.primary + '33', borderColor: colors.primary + '66' }]}>
             <Ionicons name="person" size={18} color={colors.primary} />
           </View>
+        </View>
+
+        {/* Left: action icons */}
+        <View style={styles.headerIcons}>
+          <TouchableOpacity style={[styles.iconBtn, { backgroundColor: colors.card }]}>
+            <Ionicons name="exit-outline" size={19} color={colors.mutedForeground} />
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.iconBtn, { backgroundColor: colors.card }]}>
+            <Ionicons name="notifications-outline" size={19} color={colors.mutedForeground} />
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.iconBtn, { backgroundColor: colors.card }]}>
+            <Ionicons name="pencil-outline" size={19} color={colors.mutedForeground} />
+          </TouchableOpacity>
         </View>
       </View>
 

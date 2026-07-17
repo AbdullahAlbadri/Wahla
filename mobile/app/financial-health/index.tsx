@@ -1167,10 +1167,33 @@ function ProbBox({ label, value, colors }: { label: string; value: number; color
 
 function RecommendationsTab() {
   const colors = useColors();
-  const { recommendations } = useFinancialHealth();
+  const { recommendations, behavioralTips } = useFinancialHealth();
 
   return (
     <View style={tabStyles.section}>
+      {behavioralTips.length > 0 && (
+        <>
+          <Text style={[tabStyles.sectionTitle, { color: colors.foreground, fontFamily: 'Inter_600SemiBold' }]}>
+            نصائح سلوكية
+          </Text>
+          {behavioralTips.map(tip => (
+            <View key={tip.id} style={[tabStyles.tipCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <View style={[tabStyles.tipIconWrap, { backgroundColor: colors.primary + '18' }]}>
+                <Ionicons name={tip.icon as any} size={18} color={colors.primary} />
+              </View>
+              <View style={tabStyles.tipTextGroup}>
+                <Text style={[tabStyles.tipTitle, { color: colors.foreground, fontFamily: 'Inter_600SemiBold' }]}>
+                  {tip.title}
+                </Text>
+                <Text style={[tabStyles.tipDetail, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>
+                  {tip.detail}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </>
+      )}
+
       <Text style={[tabStyles.sectionTitle, { color: colors.foreground, fontFamily: 'Inter_600SemiBold' }]}>
         توصيات مخصصة لك
       </Text>
@@ -1419,6 +1442,11 @@ const tabStyles = StyleSheet.create({
   categoriesCard: { borderRadius: 14, borderWidth: 1, padding: 16, gap: 16 },
   categoryNoteRow: { flexDirection: 'row-reverse', alignItems: 'flex-start', gap: 5, paddingHorizontal: 4 },
   categoryNoteText: { flex: 1, fontSize: 10, textAlign: 'right', lineHeight: 15 },
+  tipCard: { flexDirection: 'row-reverse', gap: 12, borderRadius: 14, borderWidth: 1, padding: 14, alignItems: 'flex-start' },
+  tipIconWrap: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  tipTextGroup: { flex: 1, gap: 4 },
+  tipTitle: { fontSize: 14, textAlign: 'right' },
+  tipDetail: { fontSize: 12, textAlign: 'right', lineHeight: 18 },
   trendCard: { borderRadius: 14, borderWidth: 1, padding: 16 },
   trendBarsRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 8 },
   monthBarWrap: { flex: 1, alignItems: 'center', gap: 4 },

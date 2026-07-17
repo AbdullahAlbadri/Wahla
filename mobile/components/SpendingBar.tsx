@@ -52,7 +52,7 @@ export function SpendingBar({ name, amount, budget, percentage, color }: Spendin
       </View>
 
       {/* Bar */}
-      <View style={[styles.track, { backgroundColor: colors.border }]}>
+      <View style={[styles.track, { backgroundColor: colors.border, transform: [{ scaleX: -1 }] }]}>
         <Animated.View
           style={[
             styles.fill,

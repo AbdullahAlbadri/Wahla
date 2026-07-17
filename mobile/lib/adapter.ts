@@ -170,6 +170,67 @@ function buildRecommendations(suggestions: SuggestionItem[]) {
   }));
 }
 
+// Behavioral coaching tips — distinct from the bank-product suggestions
+// (twin/suggestions.py): these compare the real 50/30/20 budget split and
+// real category breakdown against their targets and surface the gap as an
+// actionable tip. Every number here is already computed on the backend
+// (budget.ratios/targets, category_ratios) — this only picks which
+// comparisons are worth surfacing and phrases them, no new signal invented.
+export interface BehavioralTip {
+  id: string;
+  title: string;
+  detail: string;
+  icon: string;
+}
+
+function buildBehavioralTips(
+  segments: BudgetSegment[],
+  categories: ReturnType<typeof buildSpendingCategories>,
+): BehavioralTip[] {
+  const tips: BehavioralTip[] = [];
+  const wants = segments.find(s => s.id === "wants");
+  const needs = segments.find(s => s.id === "needs");
+  const savings = segments.find(s => s.id === "savings");
+
+  if (wants && wants.pct - wants.ideal >= 5) {
+    tips.push({
+      id: "wants_over",
+      title: "رغباتك أعلى من الهدف",
+      detail: `إنفاقك على الرغبات ${wants.pct}% من دخلك، بينما الهدف ${wants.ideal}% — خفضه لأقرب من الهدف يزيد ما تقدر تدخره كل شهر.`,
+      icon: "cart-outline",
+    });
+  }
+  if (needs && needs.pct - needs.ideal >= 5) {
+    tips.push({
+      id: "needs_over",
+      title: "احتياجاتك تأخذ حصة كبيرة من دخلك",
+      detail: `إنفاقك على الاحتياجات ${needs.pct}% من دخلك، بينما الهدف ${needs.ideal}% — راجعي الالتزامات الثابتة (سكن، فواتير) لمعرفة سبب الارتفاع.`,
+      icon: "home-outline",
+    });
+  }
+
+  const top = categories[0];
+  if (top && /غير مصنف/.test(top.name) && top.percentage >= 40) {
+    tips.push({
+      id: "uncategorized_dominant",
+      title: "أغلب إنفاقك غير مصنّف",
+      detail: `${top.percentage}% من مصروفاتك ضمن فئة "غير مصنف" — راجعي كشف حسابك لمعرفة أين يذهب هذا المبلغ فعليًا قبل ما تقررين تقليل أي بند.`,
+      icon: "help-circle-outline",
+    });
+  }
+
+  if (tips.length === 0 && savings && savings.pct - savings.ideal >= 10) {
+    tips.push({
+      id: "savings_strong",
+      title: "معدل ادخارك أعلى من الهدف بمسافة جيدة",
+      detail: `تدخرين ${savings.pct}% من دخلك مقابل هدف ${savings.ideal}% — استمري على هذا النمط، ولا يوجد بند إنفاق يستدعي تنبيه حاليًا.`,
+      icon: "checkmark-circle-outline",
+    });
+  }
+
+  return tips;
+}
+
 export interface AdaptedFinancialHealth {
   score: number;
   scoreLabel: string;
@@ -191,6 +252,7 @@ export interface AdaptedFinancialHealth {
   spendingCategories: ReturnType<typeof buildSpendingCategories>;
   dimensions: ReturnType<typeof buildDimensions>;
   recommendations: ReturnType<typeof buildRecommendations>;
+  behavioralTips: BehavioralTip[];
   forecast: TwinState["forecast"];
 }
 
@@ -201,6 +263,8 @@ export function buildFinancialHealthData(
 ): AdaptedFinancialHealth {
   const score = Math.round(twin.financial_health_score);
   const grade = gradeFor(score);
+  const segments = buildBudgetSegments(twin, budget);
+  const categories = buildSpendingCategories(twin);
   return {
     score,
     scoreLabel: scoreLabelAr[grade],
@@ -219,10 +283,11 @@ export function buildFinancialHealthData(
     archetypeDescription:
       archetypeDescriptionAr[twin.financial_personality] ?? "",
     personalityConfidence: twin.personality_confidence,
-    budgetSegments: buildBudgetSegments(twin, budget),
-    spendingCategories: buildSpendingCategories(twin),
+    budgetSegments: segments,
+    spendingCategories: categories,
     dimensions: buildDimensions(twin),
     recommendations: buildRecommendations(suggestions),
+    behavioralTips: buildBehavioralTips(segments, categories),
     forecast: twin.forecast,
   };
 }
