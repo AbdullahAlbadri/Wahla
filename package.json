@@ -1,0 +1,22 @@
+{
+  "name": "wahla",
+  "version": "0.1.0",
+  "description": "Financial Digital Twin - Open Banking Hackathon",
+  "private": true,
+  "engines": {
+    "node": ">=18",
+    "python": "3.12"
+  },
+  "scripts": {
+    "dev": "expo start --web",
+    "build": "expo export -p web",
+    "start": "python3 -m uvicorn api:app --host 0.0.0.0 --port 8000",
+    "dev:api": "python3 -m uvicorn api:app --port 8000 --reload",
+    "test": "python3 -m pytest"
+  },
+  "devDependencies": {
+    "expo": "~54.0.27"
+  },
+  "dependencies": {}
+}
+
