@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "وهلة — مساعد القرار المالي",
+  "version": "0.1.0",
+  "description": "حلّلي أي قرار شراء قبل ما تدفعين، بناءً على وضعك المالي الحقيقي.",
+  "permissions": ["storage"],
+  "host_permissions": ["http://localhost:8000/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "وهلة"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

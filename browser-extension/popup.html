@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      width: 240px;
+      margin: 0;
+      padding: 16px;
+      background: #0D1B2A;
+      color: #E7ECF3;
+      font-family: -apple-system, "Segoe UI", Tahoma, sans-serif;
+      font-size: 13px;
+    }
+    h1 {
+      font-size: 15px;
+      margin: 0 0 10px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid #22344A;
+    }
+    p.hint {
+      color: #9AB0C4;
+      line-height: 1.6;
+      margin: 10px 0 0;
+    }
+    label.switch {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 20px;
+    }
+    label.switch input { display: none; }
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #22344A;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 2px;
+      top: 2px;
+      background: #fff;
+      border-radius: 50%;
+      transition: 0.15s;
+    }
+    input:checked + .slider { background: #E07A5F; }
+    input:checked + .slider::before { transform: translateX(-18px); }
+  </style>
+</head>
+<body>
+  <h1>وهلة — مساعد القرار المالي</h1>
+  <div class="row">
+    <span>تفعيل الزر العائم</span>
+    <label class="switch">
+      <input type="checkbox" id="toggle" />
+      <span class="slider"></span>
+    </label>
+  </div>
+  <p class="hint">
+    ما نراقب تصفحك. الزر يظهر فقط إذا فعّلتيه، ولا نرسل أي بيانات إلا لما تضغطين "حلّلي هذا القرار" بنفسك.
+  </p>
+  <script src="popup.js"></script>
+</body>
+</html>
