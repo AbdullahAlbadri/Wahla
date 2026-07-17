@@ -822,10 +822,10 @@ function Step3({
         </Text>
         {reasons.map((r, i) => (
           <View key={i} style={s3.reasonRow}>
-            <Text style={[s3.reasonText, { color: colors.foreground, fontFamily: 'Inter_400Regular' }]}>{r}</Text>
             <View style={[s3.reasonNum, { backgroundColor: colors.primary }]}>
               <Text style={[s3.reasonNumText, { fontFamily: 'Inter_700Bold' }]}>{i + 1}</Text>
             </View>
+            <Text style={[s3.reasonText, { color: colors.foreground, fontFamily: 'Inter_400Regular' }]}>{r}</Text>
           </View>
         ))}
         <Text style={[s3.disclaimer, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>

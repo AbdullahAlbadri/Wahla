@@ -34,6 +34,9 @@ export function SpendingBar({ name, amount, budget, percentage, color }: Spendin
     <View style={styles.row}>
       {/* Label row */}
       <View style={styles.labelRow}>
+        <Text style={[styles.name, { color: colors.foreground, fontFamily: 'Inter_500Medium' }]}>
+          {name}
+        </Text>
         <View style={styles.leftSide}>
           <Text style={[styles.percent, { color: colors.mutedForeground, fontFamily: 'Inter_500Medium' }]}>
             {percentage}%
@@ -46,9 +49,6 @@ export function SpendingBar({ name, amount, budget, percentage, color }: Spendin
             </View>
           )}
         </View>
-        <Text style={[styles.name, { color: colors.foreground, fontFamily: 'Inter_500Medium' }]}>
-          {name}
-        </Text>
       </View>
 
       {/* Bar */}

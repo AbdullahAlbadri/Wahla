@@ -409,7 +409,7 @@ function useMetricDefs() {
     },
     {
       id: 'efficiency',
-      label: 'التوافق مع 50/30/20',
+      label: 'كفاءة الإنفاق',
       icon: 'analytics-outline' as const,
       current: `${Math.round(adherence)}%`,
       positive: adherence >= 70,
