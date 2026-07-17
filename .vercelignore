@@ -1,0 +1,11 @@
+# Backend lives on Render, not Vercel — keep these out of the
+# Vercel build so it doesn't auto-detect api/*.py as a Python
+# serverless function and drag in pandas/scipy/scikit-learn + data/.
+api/
+twin/
+analysis/
+browser-extension/
+data/
+*.py
+requirements.txt
+Wahla_Backend_Demo.ipynb
