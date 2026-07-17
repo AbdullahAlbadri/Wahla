@@ -2,7 +2,7 @@
 <html dir="rtl" lang="ar">
 <head>
 <meta charset="utf-8" />
-<title>Wuhla extension — standalone demo (not part of the extension bundle)</title>
+<title>Wuhla extension — standalone demo (loads the real content.js unmodified)</title>
 <link rel="stylesheet" href="content.css" />
 <style>
   body { font-family: -apple-system, sans-serif; background: #05101c; color: #E7ECF3; padding: 40px; }
@@ -15,124 +15,12 @@
   <div class="page-mock">
     <h2>متجر تجريبي — MacBook Air</h2>
     <p class="price-line">6000 ريال — أو 4 payments — 1500 ريال / شهر</p>
-    <p>هذي صفحة تجريبية بسيطة (مو جزء من الإضافة الفعلية) تحاكي صفحة دفع حقيقية،
-      عشان نتأكد إن منطق الاستخراج + الاتصال بالسيرفر الحقيقي يشتغل صح
-      قبل ما تُحمَّل كإضافة متصفح فعلية عبر chrome://extensions.</p>
+    <button>إتمام الدفع</button>
+    <p>صفحة تجريبية (مو جزء من الإضافة) تحاكي صفحة دفع حقيقية بأسلوب Tabby/Tamara،
+      وتحمّل content.js/content.css الحقيقيين بدون أي تعديل — عشان نتأكد إن
+      الكود اللي بيُشحن فعليًا كإضافة متصفح يشتغل صح.</p>
   </div>
-
-  <script>
-    const VERDICT_LABELS = {
-      safe: { title: 'القرار آمن', tone: '#3B8C6E' },
-      caution: { title: 'القرار يحتاج انتباه', tone: '#C08A2E' },
-      risky: { title: 'القرار يحتاج مراجعة', tone: '#C0602E' },
-      dangerous: { title: 'القرار غير آمن حاليًا', tone: '#C0392E' },
-    };
-    const API_BASE = 'http://localhost:8000';
-    const ACCOUNT_ID = 21;
-
-    function extractPurchaseInfo() {
-      const text = document.body.innerText || '';
-      const priceMatch = text.match(/(?:ريال|SAR|﷼|\$)\s?([\d,]+(?:\.\d+)?)|([\d,]+(?:\.\d+)?)\s?(?:ريال|SAR|﷼)/i);
-      const price = priceMatch ? parseFloat((priceMatch[1] || priceMatch[2]).replace(/,/g, '')) : null;
-      const installmentMatch = text.match(/(\d+)\s?(?:payments|installments?|أشهر|أقساط|دفعات)/i);
-      const months = installmentMatch ? parseInt(installmentMatch[1], 10) : null;
-      const monthlyMatch = text.match(/([\d,]+(?:\.\d+)?)\s?(?:ريال|SAR|﷼)?\s?\/\s?(?:month|شهر)/i);
-      const monthly = monthlyMatch ? parseFloat(monthlyMatch[1].replace(/,/g, '')) : null;
-      return { price, months, monthly };
-    }
-
-    function buildPanel() {
-      const panel = document.createElement('div');
-      panel.id = 'wuhla-panel';
-      panel.dir = 'rtl';
-      panel.style.position = 'fixed';
-      panel.innerHTML = `<div class="wuhla-header"><span>وهلة</span><button class="wuhla-close">×</button></div><div class="wuhla-body"></div>`;
-      document.body.appendChild(panel);
-      panel.querySelector('.wuhla-close').addEventListener('click', () => panel.remove());
-      return panel;
-    }
-
-    function renderForm(panel, detected) {
-      const body = panel.querySelector('.wuhla-body');
-      const foundNote = detected.price || detected.monthly
-        ? `<p class="wuhla-hint">لقينا أرقام باحتمال أنها مرتبطة بهذا الشراء — تأكدي منها أو عدّليها قبل التحليل.</p>`
-        : `<p class="wuhla-hint">ما قدرنا نستخرج الأرقام تلقائيًا من هذي الصفحة — عبّي القيم يدويًا.</p>`;
-      body.innerHTML = `
-        ${foundNote}
-        <label>القسط الشهري (ريال)</label>
-        <input type="number" id="wuhla-monthly" value="${detected.monthly || detected.price || ''}" min="0" />
-        <label>عدد الأشهر</label>
-        <input type="number" id="wuhla-months" value="${detected.months || 1}" min="1" />
-        <button id="wuhla-analyze" class="wuhla-primary-btn">حلّلي هذا القرار</button>
-      `;
-      body.querySelector('#wuhla-analyze').addEventListener('click', () => {
-        const monthly = parseFloat(body.querySelector('#wuhla-monthly').value);
-        const months = parseInt(body.querySelector('#wuhla-months').value, 10);
-        if (!monthly || monthly <= 0) { body.querySelector('#wuhla-monthly').focus(); return; }
-        renderLoading(panel);
-        analyzePurchase(monthly, months).then(res => renderResult(panel, res));
-      });
-    }
-
-    function renderLoading(panel) {
-      panel.querySelector('.wuhla-body').innerHTML = `<p class="wuhla-hint">توأمك الرقمي يحلل الأثر...</p>`;
-    }
-
-    async function analyzePurchase(monthly, months) {
-      try {
-        const res = await fetch(`${API_BASE}/api/simulate/${ACCOUNT_ID}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: months > 1 ? 'installment' : 'subscription',
-            monthly, months: Math.max(1, months),
-            hasDownPayment: false, down_payment: 0,
-          }),
-        });
-        if (!res.ok) throw new Error(`API returned ${res.status}`);
-        return { ok: true, data: await res.json() };
-      } catch (err) {
-        return { ok: false, error: err.message };
-      }
-    }
-
-    function renderResult(panel, response) {
-      const body = panel.querySelector('.wuhla-body');
-      if (!response || !response.ok) {
-        body.innerHTML = `<p class="wuhla-hint">تعذر الاتصال بمحرك التحليل (${response.error}). تأكدي إن السيرفر شغّال على 8000.</p>
-          <button id="wuhla-retry" class="wuhla-primary-btn">حاولي مرة ثانية</button>`;
-        body.querySelector('#wuhla-retry').addEventListener('click', () => renderForm(panel, extractPurchaseInfo()));
-        return;
-      }
-      const d = response.data;
-      const verdict = VERDICT_LABELS[d.verdict] || VERDICT_LABELS.caution;
-      const scoreBefore = Math.round(d.before.financial_health_score);
-      const scoreAfter = Math.round(d.after.financial_health_score);
-      const cashflowAfter = Math.round(d.after.net_cashflow);
-      const cashflowLabel = cashflowAfter >= 0 ? 'الفائض الشهري بعد القرار' : 'العجز الشهري بعد القرار';
-      body.innerHTML = `
-        <div class="wuhla-verdict" style="border-color:${verdict.tone}">
-          <strong style="color:${verdict.tone}">${verdict.title}</strong>
-          <p>الصحة المالية: ${scoreBefore} → ${scoreAfter}</p>
-          <p>${cashflowLabel}: ${cashflowAfter.toLocaleString('en-US')} ريال</p>
-        </div>
-        <button id="wuhla-again" class="wuhla-secondary-btn">تحليل قرار ثاني</button>
-      `;
-      body.querySelector('#wuhla-again').addEventListener('click', () => renderForm(panel, extractPurchaseInfo()));
-    }
-
-    function injectButton() {
-      const btn = document.createElement('button');
-      btn.id = 'wuhla-fab';
-      btn.textContent = 'و';
-      btn.addEventListener('click', () => {
-        const existing = document.getElementById('wuhla-panel');
-        if (existing) { existing.remove(); return; }
-        renderForm(buildPanel(), extractPurchaseInfo());
-      });
-      document.body.appendChild(btn);
-    }
-    injectButton();
-  </script>
+  <script src="chrome-shim.js"></script>
+  <script src="content.js"></script>
 </body>
 </html>

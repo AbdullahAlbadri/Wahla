@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8" />
+<title>Wuhla extension — Tabby-style checkout demo</title>
+<link rel="stylesheet" href="content.css" />
+<style>
+  body { font-family: -apple-system, sans-serif; background: #f5f5f5; color: #111; padding: 40px; }
+  .checkout { max-width: 420px; background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .checkout h2 { font-size: 18px; margin: 0 0 4px; }
+  .checkout .price { font-size: 28px; font-weight: 700; margin: 8px 0; }
+  .tabby-widget { border: 1px solid #ddd; border-radius: 10px; padding: 14px; margin: 16px 0; font-size: 13px; color: #333; }
+  .tabby-widget b { color: #5A31F4; }
+  .pay-btn { width: 100%; background: #111; color: #fff; border: none; border-radius: 8px; padding: 14px; font-size: 15px; cursor: pointer; }
+</style>
+</head>
+<body>
+  <div class="checkout">
+    <h2>إتمام الطلب — سماعات لاسلكية</h2>
+    <div class="price">750 ريال</div>
+    <div class="tabby-widget">
+      قسّطي مع <b>Tabby</b> — 4 installments of 187.5 ريال، بدون فوائد.
+    </div>
+    <button class="pay-btn">Pay now</button>
+  </div>
+  <script src="chrome-shim.js"></script>
+  <script src="content.js"></script>
+</body>
+</html>

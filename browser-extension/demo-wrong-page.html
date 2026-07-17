@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8" />
+<title>Wuhla extension — non-checkout page demo (should be rejected gracefully)</title>
+<link rel="stylesheet" href="content.css" />
+<style>
+  body { font-family: -apple-system, sans-serif; background: #fff; color: #111; padding: 40px; }
+  article { max-width: 480px; }
+</style>
+</head>
+<body>
+  <article>
+    <h2>مقال: كيف تدير ميزانيتك الشهرية</h2>
+    <p>هذي صفحة تجريبية عادية (مقال، بلوق، صفحة رئيسية...) ما فيها أي
+      سعر أو خطة دفع — عشان نتأكد إن الزر ما يحاول يحلل شي مو موجود،
+      ويوجّه المستخدم لصفحة الدفع الصحيحة بدل ما يعرض نموذج فاضي.</p>
+  </article>
+  <script src="chrome-shim.js"></script>
+  <script src="content.js"></script>
+</body>
+</html>

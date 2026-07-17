@@ -8,18 +8,26 @@
   background: #E07A5F;
   color: #fff;
   border: none;
-  font-size: 20px;
-  font-weight: 700;
   cursor: pointer;
   z-index: 2147483000;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#wuhla-fab svg {
+  width: 24px;
+  height: 24px;
 }
 
 #wuhla-panel {
   position: fixed;
   bottom: 88px;
   left: 24px;
-  width: 300px;
+  width: 320px;
+  max-height: 70vh;
+  overflow-y: auto;
   background: #0D1B2A;
   color: #E7ECF3;
   border-radius: 14px;
@@ -28,16 +36,41 @@
   z-index: 2147483000;
   font-family: -apple-system, "Segoe UI", Tahoma, sans-serif;
   font-size: 13px;
-  overflow: hidden;
 }
 
 #wuhla-panel .wuhla-header {
   display: flex;
+  flex-direction: row-reverse;
   justify-content: space-between;
   align-items: center;
   padding: 12px 14px;
   border-bottom: 1px solid #22344A;
+  position: sticky;
+  top: 0;
+  background: #0D1B2A;
+}
+
+#wuhla-panel .wuhla-brand {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 8px;
   font-weight: 700;
+}
+
+#wuhla-panel .wuhla-logo {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: #E07A5F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#wuhla-panel .wuhla-logo svg {
+  width: 14px;
+  height: 14px;
 }
 
 #wuhla-panel .wuhla-close {
@@ -54,6 +87,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  text-align: right;
 }
 
 #wuhla-panel label {
@@ -68,12 +102,27 @@
   color: #E7ECF3;
   padding: 8px 10px;
   font-size: 14px;
+  text-align: right;
 }
 
 #wuhla-panel .wuhla-hint {
   color: #9AB0C4;
   line-height: 1.5;
   margin: 0 0 4px;
+}
+
+#wuhla-panel .wuhla-fine-print {
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+#wuhla-panel .wuhla-badge {
+  background: #E07A5F22;
+  color: #E07A5F;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 #wuhla-panel .wuhla-primary-btn {
@@ -97,6 +146,11 @@
   margin-top: 6px;
 }
 
+#wuhla-panel .wuhla-secondary-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 #wuhla-panel .wuhla-verdict {
   border: 1px solid;
   border-radius: 10px;
@@ -106,4 +160,79 @@
 #wuhla-panel .wuhla-verdict p {
   margin: 4px 0 0;
   color: #E7ECF3;
+}
+
+#wuhla-panel .wuhla-reason {
+  color: #9AB0C4 !important;
+  font-size: 12px;
+}
+
+#wuhla-panel .wuhla-section-label {
+  font-size: 12px;
+  color: #9AB0C4;
+  margin: 4px 0 2px;
+  font-weight: 600;
+}
+
+#wuhla-panel .wuhla-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#wuhla-panel .wuhla-reason-row {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+#wuhla-panel .wuhla-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #E07A5F;
+  flex-shrink: 0;
+}
+
+#wuhla-panel .wuhla-alt-card {
+  border: 1px solid #22344A;
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 6px;
+  position: relative;
+}
+
+#wuhla-panel .wuhla-alt-card p {
+  margin: 4px 0 0;
+  color: #9AB0C4;
+  font-size: 12px;
+}
+
+#wuhla-panel .wuhla-alt-best {
+  border-color: #3B8C6E;
+}
+
+#wuhla-panel .wuhla-alt-tag {
+  position: absolute;
+  top: -9px;
+  right: 10px;
+  background: #3B8C6E;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+#wuhla-panel .wuhla-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#wuhla-panel .wuhla-empty-title {
+  font-weight: 700;
+  margin: 0;
 }
