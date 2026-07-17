@@ -23,6 +23,12 @@ export interface DecisionState {
   monthly: number;
   months: number;
   hasDownPayment: boolean;
+  downPaymentAmount: number;
+  hasLastPayment: boolean;
+  lastPaymentAmount: number;
+  startDate: string; // YYYY-MM format
+  bnplDate: string;  // YYYY-MM-DD for single BNPL payment
+  bnplAmount: number;
 }
 
 interface Ctx {
@@ -42,12 +48,30 @@ function storedAccount(): number {
   return v > 0 ? v : DEFAULT_ACCOUNT;
 }
 
+function nextMonthStr(): string {
+  const d = new Date();
+  d.setMonth(d.getMonth() + 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function bnplDefaultDate(): string {
+  const d = new Date();
+  d.setMonth(d.getMonth() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
 export function WahlaProvider({ children }: { children: ReactNode }) {
   const [decision, setDecisionState] = useState<DecisionState>({
     type: "installment",
     monthly: 400,
     months: 6,
     hasDownPayment: false,
+    downPaymentAmount: 0,
+    hasLastPayment: false,
+    lastPaymentAmount: 0,
+    startDate: nextMonthStr(),
+    bnplDate: bnplDefaultDate(),
+    bnplAmount: 0,
   });
   const [accountId, setAccountIdState] = useState(storedAccount);
   const setAccountId = (id: number) => {
@@ -88,9 +112,14 @@ export function useAccounts() {
 
 export function useSimulation() {
   const { accountId, decision } = useWahla();
+  // For BNPL, map to single-month payment
+  const payload =
+    decision.type === "bnpl"
+      ? { ...decision, monthly: decision.bnplAmount, months: 1 }
+      : decision;
   return useQuery<SimulationResult>({
     queryKey: ["simulate", accountId, decision],
-    queryFn: () => simulateDecision(accountId, decision),
+    queryFn: () => simulateDecision(accountId, payload),
     staleTime: 60_000,
   });
 }

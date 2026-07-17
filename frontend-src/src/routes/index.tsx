@@ -15,12 +15,12 @@ function Intro() {
             <img src={logoUrl} alt="وهلة" className="w-full h-full object-contain" />
           </div>
 
-          <h1 className="mt-4 text-[32px] font-bold text-navy leading-tight">
+          <h1 className="mt-4 text-[32px] font-bold text-navy leading-tight text-right w-full">
             قبل أن تلتزم…
             <br />
             شاهد أثر قرارك
           </h1>
-          <p className="mt-4 text-[15px] text-ink-muted leading-relaxed max-w-[300px]">
+          <p className="mt-4 text-[15px] text-ink-muted leading-relaxed text-right w-full">
             محاكاة تقديرية لأثر القروض والتقسيط قبل اتخاذ القرار.
           </p>
         </div>
