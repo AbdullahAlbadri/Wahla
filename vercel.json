@@ -1,7 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
+  "buildCommand": "pip install -r requirements.txt",
   "env": {
     "PYTHONUNBUFFERED": "1"
   },
@@ -9,10 +8,6 @@
     {
       "src": "/api/(.*)",
       "dest": "api/index.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
     }
   ]
 }
