@@ -16,6 +16,20 @@ function FinancialHealthTitle() {
   );
 }
 
+function HeaderBackButton() {
+  const colors = useColors();
+  const router = useRouter();
+  return (
+    <TouchableOpacity
+      onPress={() => router.back()}
+      style={[s.iconBtn, { backgroundColor: colors.card, marginLeft: Platform.OS === 'ios' ? 0 : 4 }]}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+    >
+      <Ionicons name="chevron-back" size={19} color={colors.foreground} />
+    </TouchableOpacity>
+  );
+}
+
 function HeaderActions() {
   const colors = useColors();
   const router = useRouter();
@@ -72,8 +86,11 @@ export default function FinancialHealthLayout() {
         headerStyle: { backgroundColor: colors.background },
         headerTintColor: colors.foreground,
         headerTitleStyle: { fontFamily: 'Inter_600SemiBold', fontSize: 17 },
+        headerTitleAlign: 'center',
         headerShadowVisible: false,
-        headerBackTitle: 'رجوع',
+        headerBackVisible: false,
+        headerLeft: () => null,
+        headerRight: () => <HeaderBackButton />,
         contentStyle: { backgroundColor: colors.background },
       }}
     >

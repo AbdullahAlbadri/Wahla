@@ -215,7 +215,11 @@ export const fetchTwinPatterns = (accountId: number) =>
 
 export const simulateDecision = (
   accountId: number,
-  decision: { type: string; monthly: number; months: number; hasDownPayment: boolean; down_payment?: number },
+  decision: {
+    type: string; monthly: number; months: number;
+    hasDownPayment: boolean; down_payment?: number;
+    hasFinalPayment?: boolean; final_payment?: number;
+  },
 ) => post<SimulationResult>(`/api/simulate/${accountId}`, decision);
 
 export const fetchAlternatives = (accountId: number, monthly: number, months: number) =>

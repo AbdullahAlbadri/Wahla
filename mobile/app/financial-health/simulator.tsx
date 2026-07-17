@@ -72,6 +72,14 @@ function calendarMonthLabel(offset: number): string {
   return `${MONTH_NAMES_AR[d.getMonth()]} ${d.getFullYear()}`;
 }
 
+// BNPL is a schedule of real dated installments, not an abstract duration —
+// each payment lands in its own calendar month starting at startOffset.
+// Month-level only (no day-of-month claim): the Twin's data doesn't carry
+// per-payment due dates, only monthly cadence.
+function installmentDueDates(startOffset: number, count: number): string[] {
+  return Array.from({ length: count }, (_, i) => calendarMonthLabel(startOffset + i));
+}
+
 // Sane bounds for a monthly commitment amount — rejects negative/zero and
 // absurdly large values before they ever reach the simulation API.
 const MIN_AMOUNT = 50;
@@ -197,6 +205,10 @@ function Step2({
   setHasDownPayment,
   downPaymentAmount,
   setDownPaymentAmount,
+  hasFinalPayment,
+  setHasFinalPayment,
+  finalPaymentAmount,
+  setFinalPaymentAmount,
   startOffset,
   setStartOffset,
   onBack,
@@ -212,6 +224,10 @@ function Step2({
   setHasDownPayment: (v: boolean) => void;
   downPaymentAmount: string;
   setDownPaymentAmount: (v: string) => void;
+  hasFinalPayment: boolean;
+  setHasFinalPayment: (v: boolean) => void;
+  finalPaymentAmount: string;
+  setFinalPaymentAmount: (v: string) => void;
   startOffset: number;
   setStartOffset: (v: number) => void;
   onBack: () => void;
@@ -220,6 +236,7 @@ function Step2({
 }) {
   const parsedAmount = parseFloat(amount.replace(/,/g, '')) || 0;
   const parsedDownPayment = parseFloat(downPaymentAmount.replace(/,/g, '')) || 0;
+  const parsedFinalPayment = parseFloat(finalPaymentAmount.replace(/,/g, '')) || 0;
   const total = parsedAmount * duration;
   const typeLabel = COMMITMENT_TYPES.find(t => t.id === type)?.label ?? '';
 
@@ -374,6 +391,57 @@ function Step2({
         </FieldBlock>
       )}
 
+      {/* Final (balloon) payment — only for loan/installment, lands at maturity */}
+      {showDownPayment && (
+        <FieldBlock label="هل توجد دفعة أخيرة؟" colors={colors}>
+          <View style={s2.toggleRow}>
+            <TouchableOpacity
+              onPress={() => setHasFinalPayment(false)}
+              style={[s2.toggleBtn, {
+                backgroundColor: !hasFinalPayment ? colors.foreground : colors.card,
+                borderColor: !hasFinalPayment ? colors.foreground : colors.border,
+              }]}
+            >
+              <Text style={[s2.toggleText, {
+                color: !hasFinalPayment ? colors.background : colors.mutedForeground,
+                fontFamily: !hasFinalPayment ? 'Inter_700Bold' : 'Inter_400Regular',
+              }]}>لا</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setHasFinalPayment(true)}
+              style={[s2.toggleBtn, {
+                backgroundColor: hasFinalPayment ? colors.foreground : colors.card,
+                borderColor: hasFinalPayment ? colors.foreground : colors.border,
+              }]}
+            >
+              <Text style={[s2.toggleText, {
+                color: hasFinalPayment ? colors.background : colors.mutedForeground,
+                fontFamily: hasFinalPayment ? 'Inter_700Bold' : 'Inter_400Regular',
+              }]}>نعم</Text>
+            </TouchableOpacity>
+          </View>
+          {hasFinalPayment && (
+            <>
+              <View style={[s2.inputRow, { backgroundColor: colors.card, borderColor: colors.border, marginTop: 10 }]}>
+                <Text style={[s2.inputUnit, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>ريال</Text>
+                <TextInput
+                  value={finalPaymentAmount}
+                  onChangeText={v => setFinalPaymentAmount(v.replace(/[^0-9.]/g, ''))}
+                  keyboardType="numeric"
+                  placeholder="قيمة الدفعة الأخيرة"
+                  placeholderTextColor={colors.mutedForeground}
+                  textAlign="right"
+                  style={[s2.input, { color: colors.foreground, fontFamily: 'Inter_600SemiBold', flex: 1 }]}
+                />
+              </View>
+              <Text style={[s2.hintText, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>
+                تُخصم عند نهاية المدة ({formatDuration(duration)}) وليست اليوم
+              </Text>
+            </>
+          )}
+        </FieldBlock>
+      )}
+
       {/* Summary card */}
       {parsedAmount > 0 && (
         <View style={[s2.summaryCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -385,8 +453,29 @@ function Step2({
           {showDownPayment && hasDownPayment && parsedDownPayment > 0 && (
             <SummaryRow label="الدفعة الأولى" value={`${parsedDownPayment.toLocaleString('en-US')} ريال`} colors={colors} />
           )}
+          {showDownPayment && hasFinalPayment && parsedFinalPayment > 0 && (
+            <SummaryRow label="الدفعة الأخيرة" value={`${parsedFinalPayment.toLocaleString('en-US')} ريال`} colors={colors} />
+          )}
           <SummaryRow label="البداية" value={calendarMonthLabel(startOffset)} colors={colors} />
         </View>
+      )}
+
+      {/* BNPL is date-based, not duration-based — show the real schedule */}
+      {isBnpl && parsedAmount > 0 && (
+        <FieldBlock label="مواعيد الدفعات" colors={colors}>
+          <View style={[s2.summaryCard, { backgroundColor: colors.card, borderColor: colors.border, gap: 6 }]}>
+            {installmentDueDates(startOffset, duration).map((dateLabel, i) => (
+              <View key={i} style={s2.dueDateRow}>
+                <Text style={[s2.dueDateAmount, { color: colors.foreground, fontFamily: 'Inter_600SemiBold' }]}>
+                  {parsedAmount.toLocaleString('en-US')} ريال
+                </Text>
+                <Text style={[s2.dueDateLabel, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>
+                  الدفعة {i + 1} — {dateLabel}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </FieldBlock>
       )}
 
       {/* Actions */}
@@ -458,6 +547,9 @@ const s2 = StyleSheet.create({
   summaryCard: { borderRadius: 14, borderWidth: 1, padding: 14, gap: 8 },
   summaryTitle: { fontSize: 13, textAlign: 'right' },
   summaryDivider: { height: 1 },
+  dueDateRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center' },
+  dueDateLabel: { fontSize: 12 },
+  dueDateAmount: { fontSize: 13 },
   primaryBtn: { borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   primaryBtnText: { fontSize: 16 },
   backLink: { alignItems: 'center', paddingVertical: 4 },
@@ -478,6 +570,8 @@ function Step3({
   duration,
   hasDownPayment,
   downPaymentAmount,
+  hasFinalPayment,
+  finalPaymentAmount,
   startOffset,
   onEdit,
   colors,
@@ -487,6 +581,8 @@ function Step3({
   duration: DurationOption;
   hasDownPayment: boolean;
   downPaymentAmount: string;
+  hasFinalPayment: boolean;
+  finalPaymentAmount: string;
   startOffset: number;
   onEdit: () => void;
   colors: ReturnType<typeof useColors>;
@@ -495,9 +591,10 @@ function Step3({
   const [showAlternatives, setShowAlternatives] = useState(false);
   const parsedAmount = parseFloat(amount.replace(/,/g, '')) || 0;
   const parsedDownPayment = hasDownPayment ? (parseFloat(downPaymentAmount.replace(/,/g, '')) || 0) : 0;
+  const parsedFinalPayment = hasFinalPayment ? (parseFloat(finalPaymentAmount.replace(/,/g, '')) || 0) : 0;
 
   const simQuery = useQuery({
-    queryKey: ['simulate', type, parsedAmount, duration, hasDownPayment, parsedDownPayment],
+    queryKey: ['simulate', type, parsedAmount, duration, hasDownPayment, parsedDownPayment, hasFinalPayment, parsedFinalPayment],
     queryFn: () =>
       simulateDecision(ACCOUNT_ID, {
         type: COMMITMENT_TYPE_TO_API[type],
@@ -505,6 +602,8 @@ function Step3({
         months: duration,
         hasDownPayment,
         down_payment: parsedDownPayment,
+        hasFinalPayment,
+        final_payment: parsedFinalPayment,
       }),
     enabled: parsedAmount > 0,
   });
@@ -1066,6 +1165,8 @@ export default function SimulatorScreen() {
   const [duration, setDuration] = useState<DurationOption>(6);
   const [hasDownPayment, setHasDownPayment] = useState(false);
   const [downPaymentAmount, setDownPaymentAmount] = useState('');
+  const [hasFinalPayment, setHasFinalPayment] = useState(false);
+  const [finalPaymentAmount, setFinalPaymentAmount] = useState('');
   const [startOffset, setStartOffset] = useState(1);
 
   const bottomPad = Platform.OS === 'web' ? 34 : insets.bottom + 8;
@@ -1115,6 +1216,10 @@ export default function SimulatorScreen() {
             setHasDownPayment={setHasDownPayment}
             downPaymentAmount={downPaymentAmount}
             setDownPaymentAmount={setDownPaymentAmount}
+            hasFinalPayment={hasFinalPayment}
+            setHasFinalPayment={setHasFinalPayment}
+            finalPaymentAmount={finalPaymentAmount}
+            setFinalPaymentAmount={setFinalPaymentAmount}
             startOffset={startOffset}
             setStartOffset={setStartOffset}
             onBack={() => setStep(1)}
@@ -1129,6 +1234,8 @@ export default function SimulatorScreen() {
             duration={duration}
             hasDownPayment={hasDownPayment}
             downPaymentAmount={downPaymentAmount}
+            hasFinalPayment={hasFinalPayment}
+            finalPaymentAmount={finalPaymentAmount}
             startOffset={startOffset}
             onEdit={() => setStep(2)}
             colors={colors}

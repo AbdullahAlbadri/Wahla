@@ -792,11 +792,11 @@ function DimensionRow({ dim, colors }: { dim: Dimension; colors: ReturnType<type
   return (
     <View style={tabStyles.dimRow}>
       <View style={tabStyles.dimLabelRow}>
-        <Text style={[tabStyles.dimValue, { color: colors.foreground, fontFamily: 'Inter_600SemiBold' }]}>
-          {dim.value}
-        </Text>
         <Text style={[tabStyles.dimLabel, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>
           {dim.label}
+        </Text>
+        <Text style={[tabStyles.dimValue, { color: colors.foreground, fontFamily: 'Inter_600SemiBold' }]}>
+          {dim.value}
         </Text>
       </View>
       <View style={[tabStyles.dimTrack, { backgroundColor: colors.border, transform: [{ scaleX: -1 }] }]}>
@@ -1025,6 +1025,19 @@ function PredictionsTab() {
       <Text style={[tabStyles.summaryChange, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular', textAlign: 'right' }]}>
         امتداد خطي لنمط دخلك ومصروفاتك الحالي — وليس تنبؤًا بأحداث مستقبلية.
       </Text>
+      <View style={[tabStyles.forecastCard, { backgroundColor: colors.card, borderColor: colors.border, marginTop: 10 }]}>
+        <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <Text style={[tabStyles.forecastLabel, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>
+            الرصيد الحالي
+          </Text>
+          <View style={{ flexDirection: 'row-reverse', alignItems: 'baseline', gap: 3 }}>
+            <Text style={[tabStyles.forecastVal, { color: colors.foreground, fontFamily: 'Inter_700Bold' }]}>
+              {Math.round(currentBalance).toLocaleString('en-US')}
+            </Text>
+            <RiyalSymbol size={13} color={colors.foreground} />
+          </View>
+        </View>
+      </View>
       {nextMonths.map((f, i) => (
         <View key={i} style={[tabStyles.forecastCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={tabStyles.forecastHeader}>
@@ -1164,6 +1177,14 @@ function RecommendationsTab() {
       {recommendations.map(rec => (
         <InsightCard key={rec.id} {...rec} />
       ))}
+      {recommendations.length < 3 && (
+        <View style={tabStyles.categoryNoteRow}>
+          <Ionicons name="information-circle-outline" size={16} color={colors.mutedForeground} />
+          <Text style={[tabStyles.categoryNoteText, { color: colors.mutedForeground, fontFamily: 'Inter_400Regular' }]}>
+            توصيات إضافية (بطاقات، تمويل عقاري/سيارة، تمويل أعمال) تظهر فقط عند توفر إشارات حقيقية عليها من حسابك — لا نعرض توصية بدون أساس فعلي من بياناتك.
+          </Text>
+        </View>
+      )}
 
       {/* Simulator CTA */}
       <TouchableOpacity
@@ -1192,6 +1213,7 @@ export default function FinancialHealthScreen() {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState(0);
   const tabBarRef = useRef<ScrollView>(null);
+  const { recommendations } = useFinancialHealth();
 
   useEffect(() => {
     // ابدأ من اليمين (نظرة عامة) فور تحميل الصفحة
@@ -1281,9 +1303,9 @@ export default function FinancialHealthScreen() {
                   >
                     {tab}
                   </Text>
-                  {isRec && activeTab !== i && (
+                  {isRec && activeTab !== i && recommendations.length > 0 && (
                     <View style={[styles.tabBadge, { backgroundColor: colors.primary }]}>
-                      <Text style={styles.tabBadgeText}>3</Text>
+                      <Text style={styles.tabBadgeText}>{recommendations.length}</Text>
                     </View>
                   )}
                 </View>

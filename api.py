@@ -92,6 +92,8 @@ class Decision(BaseModel):
     months: int
     hasDownPayment: bool = False
     down_payment: float = 0
+    hasFinalPayment: bool = False
+    final_payment: float = 0
 
 
 def _decision_events(d: Decision) -> list[dict]:
@@ -104,10 +106,17 @@ def _decision_events(d: Decision) -> list[dict]:
     A down payment (when present) adds a one-off expense of its own real
     amount up front — previously this silently reused the monthly
     installment amount instead of the actual down payment.
+    A final/balloon payment (loan/installment only) doesn't hit the balance
+    now — it's scheduled to land at month `months` (loan maturity), so the
+    forecast shows the real dip when it actually happens instead of pretending
+    it's a cost incurred today.
     """
     events: list[dict] = []
     if d.hasDownPayment and d.down_payment > 0:
         events.append({"type": "one_off_expense", "amount": d.down_payment})
+    if d.hasFinalPayment and d.final_payment > 0 and d.type != "bnpl":
+        events.append({"type": "scheduled_expense", "amount": d.final_payment,
+                       "at_month": d.months})
     if d.type == "bnpl":
         events.append({"type": "fixed_term_commitment", "monthly_amount": d.monthly,
                        "term_months": d.months, "name": d.type})

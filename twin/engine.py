@@ -69,6 +69,9 @@ class FinancialTwin:
     # elapses. _forecast() reads this to taper them off instead of assuming
     # every recurring cost lasts forever.
     active_commitments: list = field(default_factory=list)
+    # One-off future deductions (e.g. a loan's balloon/final payment) that
+    # haven't hit the balance yet — _forecast() applies each at its at_month.
+    scheduled_expenses: list = field(default_factory=list)
     last_updated: str = ""
     event_log: list = field(default_factory=list)
 
@@ -130,6 +133,9 @@ class FinancialTwin:
                 if month_idx >= c["months_remaining"]:
                     month_cashflow += c["monthly_amount"]
             b += month_cashflow
+            for s in self.scheduled_expenses:
+                if s["at_month"] == month_idx:
+                    b -= s["amount"]
             balances.append(round(b, 2))
         return {
             "horizon_months": horizon_months,
@@ -158,6 +164,7 @@ class FinancialTwin:
           cancel_subscription{monthly_amount}
           rent_change        {delta}
           one_off_expense    {amount}
+          scheduled_expense  {amount, at_month}
           investment         {monthly_amount}
           fixed_term_commitment {monthly_amount, term_months, name}
         """
@@ -209,6 +216,10 @@ class FinancialTwin:
 
         elif etype == "one_off_expense":
             self.current_balance -= event["amount"]
+
+        elif etype == "scheduled_expense":
+            self.scheduled_expenses.append({
+                "amount": event["amount"], "at_month": event["at_month"]})
 
         elif etype == "investment":
             self.monthly_expenses += event["monthly_amount"]  # cash out of account
