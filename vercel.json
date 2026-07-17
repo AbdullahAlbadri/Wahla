@@ -1,9 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd mobile && npm run build",
+  "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "outputDirectory": "mobile/dist",
-  "env": {
-    "VITE_API_URL": "@vite_api_url"
-  }
+  "outputDirectory": "mobile/dist"
 }
