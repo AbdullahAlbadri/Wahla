@@ -25,7 +25,7 @@ function HeaderBackButton() {
       style={[s.iconBtn, { backgroundColor: colors.card, marginLeft: Platform.OS === 'ios' ? 0 : 4 }]}
       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
     >
-      <Ionicons name="chevron-back" size={19} color={colors.foreground} />
+      <Ionicons name="chevron-back" size={19} color={colors.foreground} style={{ transform: [{ scaleX: -1 }] }} />
     </TouchableOpacity>
   );
 }

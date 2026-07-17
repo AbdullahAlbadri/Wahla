@@ -1235,7 +1235,7 @@ export default function FinancialHealthScreen() {
               style={[styles.headerBtn, { backgroundColor: colors.card }]}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Ionicons name="chevron-back" size={19} color={colors.foreground} />
+              <Ionicons name="chevron-back" size={19} color={colors.foreground} style={{ transform: [{ scaleX: -1 }] }} />
             </TouchableOpacity>
             <View style={[styles.headerIconBadge, { backgroundColor: colors.primary + '22' }]}>
               <Ionicons name="heart-outline" size={15} color={colors.primary} />
